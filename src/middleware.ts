@@ -1,0 +1,74 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { DEFAULT_LOCALE, LOCALES } from "@/i18n/messages";
+
+/** Hosts under which a first label is treated as a tenant subdomain. */
+const ROOT_DOMAINS = ["batiste.app", "lvh.me", "localhost"];
+
+function resolveSubdomain(hostname: string): string | null {
+  const host = hostname.split(":")[0];
+  for (const root of ROOT_DOMAINS) {
+    if (host === root || host === `www.${root}`) return null;
+    if (host.endsWith(`.${root}`)) {
+      const label = host.slice(0, -(root.length + 1));
+      if (!label || label === "www" || label === "app") return null;
+      return label.split(".")[0];
+    }
+  }
+  return null;
+}
+
+function pickLocale(request: NextRequest): string {
+  const cookieLocale = request.cookies.get("batiste_locale")?.value;
+  if (cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale)) return cookieLocale;
+
+  const header = request.headers.get("accept-language") ?? "";
+  for (const part of header.split(",")) {
+    const code = part.split(";")[0]?.trim().slice(0, 2).toLowerCase();
+    if (code && (LOCALES as readonly string[]).includes(code)) return code;
+  }
+  return DEFAULT_LOCALE;
+}
+
+export function middleware(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
+
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/s/") ||
+    pathname === "/favicon.ico" ||
+    /\.[a-zA-Z0-9]+$/.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  // 1. Tenant resolution: a subdomain always renders the public site.
+  const subdomain = resolveSubdomain(request.headers.get("host") ?? "");
+  if (subdomain) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/s/${subdomain}${pathname === "/" ? "" : pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
+  // 2. Locale prefix for every application route.
+  const segments = pathname.split("/").filter(Boolean);
+  const hasLocale = segments.length > 0 && (LOCALES as readonly string[]).includes(segments[0]);
+
+  if (!hasLocale) {
+    const locale = pickLocale(request);
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+    url.search = search;
+    const response = NextResponse.redirect(url);
+    response.cookies.set("batiste_locale", locale, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+    return response;
+  }
+
+  const response = NextResponse.next();
+  response.headers.set("x-batiste-locale", segments[0]);
+  return response;
+}
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
