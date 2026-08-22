@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui";
+import { Badge, IconButton, Select } from "@/components/ui";
 import SignOutButton from "./SignOutButton";
+import { ArrowLeft, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, FileText, Inbox, LayoutDashboard, Palette, Settings } from "lucide-react";
 
 export interface ShellSite {
   id: string;
@@ -32,14 +33,15 @@ export default function SiteShell({
   const { locale, t } = useI18n();
   const pathname = usePathname();
   const base = `/${locale}/dashboard/${site.id}`;
+  const [collapsed, setCollapsed] = useState(false);
 
   const items = [
-    { href: base, label: t.nav.overview, icon: "◈", show: true },
-    { href: `${base}/pages`, label: t.nav.pages, icon: "▤", show: true },
-    { href: `${base}/catalog`, label: t.nav.catalog, icon: "▩", show: features.catalog },
-    { href: `${base}/blog`, label: t.nav.blog, icon: "¶", show: features.blog },
-    { href: `${base}/inbox`, label: t.nav.inbox, icon: "✉", show: true, badge: unreadCount },
-    { href: `${base}/settings`, label: t.nav.settings, icon: "⚙", show: true },
+    { href: base, label: t.nav.overview, icon: LayoutDashboard, show: true },
+    { href: `${base}/pages`, label: t.nav.pages, icon: FileText, show: true },
+    { href: `${base}/catalog`, label: t.nav.catalog, icon: Palette, show: features.catalog },
+    { href: `${base}/blog`, label: t.nav.blog, icon: BookOpen, show: features.blog },
+    { href: `${base}/inbox`, label: t.nav.inbox, icon: Inbox, show: true, badge: unreadCount },
+    { href: `${base}/settings`, label: t.nav.settings, icon: Settings, show: true },
   ].filter((item) => item.show);
 
   const sidebarRef = useRef<HTMLElement>(null);
@@ -65,15 +67,19 @@ export default function SiteShell({
 
   return (
     <div className="flex min-h-screen bg-zinc-50">
-      <aside ref={sidebarRef} className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-zinc-200 bg-white lg:flex">
+      <aside ref={sidebarRef} className={cn("sticky top-0 hidden h-screen shrink-0 flex-col border-r border-zinc-200 bg-white transition-[width] lg:flex", collapsed ? "w-[72px]" : "w-60")}>
         <div className="border-b border-zinc-200 px-4 py-4">
+          <div className="flex items-center justify-between gap-2">
           <Link
             href={`/${locale}/dashboard`}
-            className="text-[11px] font-medium uppercase tracking-wider text-zinc-400 hover:text-zinc-600"
+            className={cn("text-[11px] font-medium uppercase tracking-wider text-zinc-400 hover:text-zinc-600", collapsed && "mx-auto")}
           >
-            ← {t.nav.mySites}
+            {collapsed ? <ArrowLeft className="size-4" /> : <><ArrowLeft className="mr-1 inline size-3" />{t.nav.mySites}</>}
           </Link>
-          <p className="mt-2 truncate text-sm font-semibold tracking-tight text-zinc-900">
+          <IconButton label={collapsed ? "Expand sidebar" : "Collapse sidebar"} onClick={() => setCollapsed(!collapsed)} className="shrink-0">
+            {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
+          </IconButton></div>
+          {!collapsed && <><p className="mt-2 truncate text-sm font-semibold tracking-tight text-zinc-900">
             {site.name}
           </p>
           <p className="mt-0.5 truncate font-mono text-[11px] text-zinc-400">
@@ -84,6 +90,7 @@ export default function SiteShell({
               {site.status === "published" ? t.common.published : t.common.draft}
             </Badge>
           </div>
+          </>}
         </div>
 
         <nav className="flex-1 space-y-0.5 p-3">
@@ -100,11 +107,9 @@ export default function SiteShell({
                     : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                 )}
               >
-                <span className={cn("text-[13px]", active ? "opacity-90" : "text-zinc-400")}>
-                  {item.icon}
-                </span>
-                <span className="flex-1">{item.label}</span>
-                {item.badge ? (
+                <item.icon className={cn("size-4 shrink-0", active ? "opacity-90" : "text-zinc-400")} />
+                {!collapsed && <span className="flex-1">{item.label}</span>}
+                {item.badge && !collapsed ? (
                   <span
                     className={cn(
                       "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
@@ -126,12 +131,12 @@ export default function SiteShell({
             rel="noreferrer"
             className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-[13px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50"
           >
-            {t.common.visit}
-            <span className="text-zinc-400">↗</span>
+            {!collapsed && t.common.visit}
+            <ArrowUpRight className="size-4 text-zinc-400" />
           </a>
 
-          {sites.length > 1 && (
-            <select
+          {sites.length > 1 && !collapsed && (
+            <Select
               value={site.id}
               onChange={(event) => {
                 window.location.href = `/${locale}/dashboard/${event.target.value}`;
@@ -143,7 +148,7 @@ export default function SiteShell({
                   {entry.name}
                 </option>
               ))}
-            </select>
+            </Select>
           )}
 
           <div className="flex items-center gap-2">
@@ -153,7 +158,7 @@ export default function SiteShell({
             >
               {pathname.startsWith("/fr") ? "EN" : "FR"}
             </Link>
-            <SignOutButton variant="ghost" />
+            {!collapsed && <SignOutButton variant="ghost" />}
           </div>
         </div>
       </aside>

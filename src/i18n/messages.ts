@@ -92,6 +92,8 @@ const fr = {
     tooManyAttempts: "Trop de tentatives. Patientez une minute.",
     welcomeBack: "Connexion réussie",
     accountCreated: "Compte créé, bienvenue !",
+    continueWithGoogle: "Continuer avec Google",
+    or: "ou",
   },
   onboarding: {
     title: "Créons votre site",
@@ -431,6 +433,8 @@ const en: typeof fr = {
     tooManyAttempts: "Too many attempts. Please wait a minute.",
     welcomeBack: "Signed in successfully",
     accountCreated: "Account created, welcome!",
+    continueWithGoogle: "Continue with Google",
+    or: "or",
   },
   onboarding: {
     title: "Let's build your site",

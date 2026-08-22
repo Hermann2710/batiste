@@ -31,7 +31,7 @@ async function clientKey(prefix: string) {
   return `${prefix}:${ip}`;
 }
 
-async function openSession(userId: string, email: string) {
+export async function openSession(userId: string, email: string) {
   const token = await createSession(userId, email);
   const store = await cookies();
   store.set("batiste_session", token, {
@@ -62,7 +62,9 @@ export async function signInAction(
   const user = rows[0];
   if (!user) return { error: "invalid_credentials" };
 
-  const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
+  const valid = user.passwordHash
+    ? await bcrypt.compare(parsed.data.password, user.passwordHash)
+    : false;
   if (!valid) return { error: "invalid_credentials" };
 
   await openSession(user.id, user.email);

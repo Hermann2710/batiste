@@ -157,6 +157,28 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
   );
 }
 
+export function Dropdown({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <details className={cn("relative", className)}>
+      <summary className="flex h-10 cursor-pointer list-none items-center justify-between rounded-xl border border-zinc-300 bg-white px-3.5 text-sm font-medium text-zinc-800 [&::-webkit-details-marker]:hidden">
+        {label}
+        <span aria-hidden="true" className="text-zinc-400">⌄</span>
+      </summary>
+      <div className="absolute right-0 top-12 z-40 min-w-44 rounded-xl border border-zinc-200 bg-white p-1.5 shadow-xl">
+        {children}
+      </div>
+    </details>
+  );
+}
+
 export function Switch({
   checked,
   onChange,

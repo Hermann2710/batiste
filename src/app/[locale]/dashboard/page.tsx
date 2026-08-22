@@ -7,6 +7,7 @@ import { getMessages, normalizeLocale } from "@/i18n/messages";
 import { getThemeConfig } from "@/lib/themes";
 import { EmptyState, Badge } from "@/components/ui";
 import SignOutButton from "@/components/dashboard/SignOutButton";
+import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 
 export default async function SitesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;
@@ -65,18 +66,7 @@ export default async function SitesPage({ params }: { params: Promise<{ locale: 
         </div>
 
         {memberships.length === 0 ? (
-          <EmptyState
-            title={t.dashboard.noSites}
-            description={t.onboarding.subtitle}
-            action={
-              <Link
-                href={`/${locale}/onboarding`}
-                className="rounded-xl bg-zinc-900 px-4 py-2.5 text-[13px] font-medium text-white transition hover:bg-zinc-800"
-              >
-                {t.dashboard.createFirst}
-              </Link>
-            }
-          />
+          <OnboardingWizard />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {memberships.map(({ site, role }) => {
