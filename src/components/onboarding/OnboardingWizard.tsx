@@ -67,7 +67,7 @@ export default function OnboardingWizard() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6 py-16">
+    <div className="mx-auto w-full max-w-2xl py-4 sm:py-8">
       <div ref={containerRef}>
         <p className="text-[13px] font-medium text-zinc-400">
           {step} / {STEPS}
@@ -89,7 +89,7 @@ export default function OnboardingWizard() {
           ))}
         </div>
 
-        <div ref={stepContentRef} className="mt-10 rounded-2xl border border-zinc-200 bg-white p-7">
+        <div ref={stepContentRef} className="mt-8 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(24,24,27,0.45)] sm:p-7">
           {step === 1 && (
             <div className="space-y-5">
               <h2 className="text-base font-semibold tracking-tight">{t.onboarding.stepName}</h2>
@@ -218,6 +218,6 @@ export default function OnboardingWizard() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

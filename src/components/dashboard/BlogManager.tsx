@@ -106,7 +106,7 @@ export default function BlogManager({
     });
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-6xl animate-rise">
       <PageHeader
         title={t.blog.title}
         description={t.blog.subtitle}
@@ -120,9 +120,9 @@ export default function BlogManager({
           action={<Button onClick={openCreate}>{t.blog.newPost}</Button>}
         />
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {posts.map((post) => (
-            <Card key={post.id} className="flex items-center gap-4 px-5 py-4">
+            <Card key={post.id} className="group flex items-center gap-4 px-4 py-4 transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_14px_30px_-24px_rgba(24,24,27,0.6)] sm:px-5">
               {post.coverImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -131,7 +131,7 @@ export default function BlogManager({
                   className="size-12 shrink-0 rounded-lg object-cover"
                 />
               ) : (
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-400">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-400 transition-colors group-hover:bg-amber-50 group-hover:text-amber-600">
                   ¶
                 </span>
               )}
@@ -151,7 +151,7 @@ export default function BlogManager({
                   {post.publishedAt ? formatDate(post.publishedAt, `${locale}-FR`) : t.common.draft}
                 </p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex shrink-0 gap-1 opacity-70 transition-opacity group-hover:opacity-100">
                 <IconButton label={t.common.edit} onClick={() => openEdit(post)}>
                   ✎
                 </IconButton>

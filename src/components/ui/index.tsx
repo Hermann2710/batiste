@@ -11,13 +11,13 @@ type ButtonSize = "sm" | "md" | "lg";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "bg-zinc-900 text-white hover:bg-zinc-800 focus-visible:outline-zinc-900 disabled:bg-zinc-400",
+    "bg-zinc-900 text-white shadow-sm hover:-translate-y-px hover:bg-zinc-800 hover:shadow-md focus-visible:outline-zinc-900 disabled:bg-zinc-400",
   secondary:
-    "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus-visible:outline-zinc-400 disabled:text-zinc-400",
+    "bg-zinc-100 text-zinc-900 hover:-translate-y-px hover:bg-zinc-200 focus-visible:outline-zinc-400 disabled:text-zinc-400",
   ghost: "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-zinc-300",
   danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:outline-red-600",
   outline:
-    "border border-zinc-300 bg-white text-zinc-800 hover:border-zinc-400 hover:bg-zinc-50 focus-visible:outline-zinc-400",
+    "border border-zinc-300 bg-white text-zinc-800 shadow-sm hover:-translate-y-px hover:border-zinc-400 hover:bg-zinc-50 focus-visible:outline-zinc-400",
 };
 
 const buttonSizes: Record<ButtonSize, string> = {
@@ -44,7 +44,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70",
+        "inline-flex items-center justify-center font-medium transition-[background-color,border-color,box-shadow,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70",
         buttonVariants[variant],
         buttonSizes[size],
         className
@@ -146,12 +146,12 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
 }
 
 export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={cn(controlBase, "resize-y leading-relaxed", className)} {...props} />;
+  return <textarea className={cn(controlBase, "resize-y leading-relaxed shadow-sm", className)} {...props} />;
 }
 
 export function Select({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select className={cn(controlBase, "appearance-none pr-9", className)} {...props}>
+    <select className={cn(controlBase, "appearance-none pr-9 shadow-sm", className)} {...props}>
       {children}
     </select>
   );
@@ -213,9 +213,7 @@ export function Switch({
 /* -------------------------------------------------------------------- Card */
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return (
-    <div className={cn("rounded-2xl border border-zinc-200 bg-white", className)}>{children}</div>
-  );
+  return <div className={cn("rounded-2xl border border-zinc-200/80 bg-white shadow-[0_1px_2px_rgba(24,24,27,0.03)]", className)}>{children}</div>;
 }
 
 export function CardHeader({
@@ -315,9 +313,12 @@ export function Modal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-zinc-950/40 p-4 backdrop-blur-sm sm:p-8">
+    <div role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()} className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-zinc-950/50 p-4 backdrop-blur-sm sm:p-8">
       <div
         ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className={cn(
           "my-auto w-full rounded-2xl border border-zinc-200 bg-white shadow-2xl",
           size === "lg" ? "max-w-3xl" : "max-w-lg"
@@ -325,7 +326,7 @@ export function Modal({
       >
         <div className="flex items-start justify-between gap-4 border-b border-zinc-200 px-6 py-4">
           <div>
-            <h2 className="text-base font-semibold tracking-tight text-zinc-900">{title}</h2>
+            <h2 id="modal-title" className="font-display text-base font-semibold tracking-tight text-zinc-900">{title}</h2>
             {description && <p className="mt-0.5 text-[13px] text-zinc-500">{description}</p>}
           </div>
           <IconButton label="close" onClick={onClose}>

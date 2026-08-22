@@ -5,7 +5,7 @@ import { formSubmissions, pages, siteMembers, sites } from "@/db/schema";
 import { requireUser } from "@/lib/guards";
 import { getMessages, normalizeLocale } from "@/i18n/messages";
 import { getThemeConfig } from "@/lib/themes";
-import { EmptyState, Badge } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import SignOutButton from "@/components/dashboard/SignOutButton";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 

@@ -42,10 +42,11 @@ export default function AnimatedAuthLayout({
 
   return (
     <main className="flex min-h-screen">
-      <div ref={leftRef} className="flex w-full flex-col justify-center px-6 py-12 sm:px-12 lg:w-1/2">
+      <div ref={leftRef} className="flex w-full flex-col justify-center bg-[#f7f7f5] px-6 py-12 sm:px-12 lg:w-1/2">
         {left}
       </div>
-      <div ref={rightRef} className="hidden bg-zinc-900 lg:block lg:w-1/2">
+      <div ref={rightRef} className="dashboard-grid relative hidden overflow-hidden bg-zinc-950 lg:block lg:w-1/2">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(251,191,36,0.18),transparent_28%),radial-gradient(circle_at_20%_80%,rgba(45,212,191,0.12),transparent_25%)]" />
         {right}
       </div>
     </main>
