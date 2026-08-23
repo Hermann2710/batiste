@@ -120,6 +120,7 @@ const fr = {
     settings: "Paramètres",
     mySites: "Mes sites",
     newSite: "Nouveau site",
+    profile: "Mon profil",
   },
   dashboard: {
     sitesTitle: "Vos sites",
@@ -137,6 +138,13 @@ const fr = {
     publishSiteHint: "Publiez le site pour le rendre accessible publiquement.",
     recentActivity: "Dernières demandes",
     noActivity: "Aucune demande reçue pour l'instant.",
+  },
+  profile: {
+    title: "Mon profil",
+    subtitle: "Gérez vos informations personnelles et votre photo.",
+    account: "Compte Batiste",
+    avatarUrl: "Photo de profil",
+    avatarHint: "Ajoutez une URL publique vers votre image.",
   },
   pages: {
     title: "Pages",
@@ -461,6 +469,7 @@ const en: typeof fr = {
     settings: "Settings",
     mySites: "My sites",
     newSite: "New site",
+    profile: "My profile",
   },
   dashboard: {
     sitesTitle: "Your sites",
@@ -478,6 +487,13 @@ const en: typeof fr = {
     publishSiteHint: "Publish the site to make it publicly reachable.",
     recentActivity: "Latest requests",
     noActivity: "No request received yet.",
+  },
+  profile: {
+    title: "My profile",
+    subtitle: "Manage your personal details and profile photo.",
+    account: "Batiste account",
+    avatarUrl: "Profile photo",
+    avatarHint: "Add a public URL to your image.",
   },
   pages: {
     title: "Pages",

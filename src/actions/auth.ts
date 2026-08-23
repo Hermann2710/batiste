@@ -8,11 +8,16 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { rateLimit } from "@/lib/utils";
 import { normalizeLocale } from "@/i18n/messages";
-import { signIn as authSignIn, signOut as authSignOut } from "@/auth";
+import { auth, signIn as authSignIn, signOut as authSignOut } from "@/auth";
 import { AuthError } from "next-auth";
 
 export interface AuthState {
   error?: "invalid_credentials" | "email_taken" | "rate_limited" | "validation" | "unknown";
+}
+
+export interface ProfileState {
+  ok?: boolean;
+  error?: "unauthorized" | "validation" | "unknown";
 }
 
 const credentialsSchema = z.object({
@@ -23,6 +28,12 @@ const credentialsSchema = z.object({
 const registerSchema = credentialsSchema.extend({
   firstName: z.string().trim().max(100).optional(),
   lastName: z.string().trim().max(100).optional(),
+});
+
+const profileSchema = z.object({
+  firstName: z.string().trim().max(100),
+  lastName: z.string().trim().max(100),
+  avatarUrl: z.string().trim().url().or(z.literal("")),
 });
 
 async function clientKey(prefix: string) {
@@ -105,4 +116,26 @@ export async function signUpAction(
 export async function signOutAction(rawLocale: string) {
   const locale = normalizeLocale(rawLocale);
   await authSignOut({ redirectTo: `/${locale}` });
+}
+
+export async function updateProfileAction(formData: FormData): Promise<ProfileState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "unauthorized" };
+  const parsed = profileSchema.safeParse({
+    firstName: String(formData.get("firstName") ?? ""),
+    lastName: String(formData.get("lastName") ?? ""),
+    avatarUrl: String(formData.get("avatarUrl") ?? ""),
+  });
+  if (!parsed.success) return { error: "validation" };
+  try {
+    await db.update(users).set({
+      firstName: parsed.data.firstName || null,
+      lastName: parsed.data.lastName || null,
+      avatarUrl: parsed.data.avatarUrl || null,
+      updatedAt: new Date(),
+    }).where(eq(users.id, session.user.id));
+    return { ok: true };
+  } catch {
+    return { error: "unknown" };
+  }
 }

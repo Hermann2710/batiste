@@ -9,6 +9,7 @@ import { Button, Field, Input } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/i18n/messages";
 import { DEFAULT_THEMES } from "@/lib/themes";
+import ThemePicker from "./ThemePicker";
 import { cn, slugify } from "@/lib/utils";
 
 const STEPS = 3;
@@ -113,40 +114,7 @@ export default function OnboardingWizard() {
           {step === 2 && (
             <div className="space-y-5">
               <h2 className="text-base font-semibold tracking-tight">{t.onboarding.stepTheme}</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {DEFAULT_THEMES.map((theme) => (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => setThemeId(theme.id)}
-                    className={cn(
-                      "overflow-hidden rounded-xl border-2 text-left transition",
-                      themeId === theme.id
-                        ? "border-zinc-900"
-                        : "border-zinc-200 hover:border-zinc-300"
-                    )}
-                  >
-                    <div
-                      className="flex h-20 items-end gap-1 p-3"
-                      style={{ backgroundColor: theme.colors.surface }}
-                    >
-                      {theme.swatch.map((color) => (
-                        <span
-                          key={color}
-                          className="size-5 rounded-md ring-1 ring-black/5"
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </div>
-                    <div className="px-3 py-2.5">
-                      <p className="text-[13px] font-semibold text-zinc-900">{theme.name}</p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-zinc-500">
-                        {theme.description}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <ThemePicker selected={themeId} onSelect={setThemeId} />
               <p className="text-xs text-zinc-500">{t.onboarding.stepThemeHelp}</p>
             </div>
           )}

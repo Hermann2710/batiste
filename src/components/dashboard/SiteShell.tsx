@@ -8,7 +8,7 @@ import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { Badge, IconButton, Select } from "@/components/ui";
 import SignOutButton from "./SignOutButton";
-import { ArrowLeft, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, FileText, Globe2, Inbox, LayoutDashboard, Palette, Settings } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, FileText, Globe2, Inbox, LayoutDashboard, Palette, Settings, UserRound } from "lucide-react";
 
 export interface ShellSite {
   id: string;
@@ -153,6 +153,9 @@ export default function SiteShell({
           )}
 
           <div className="flex items-center gap-2">
+            <Link href={`/${locale}/profile`} aria-label={t.nav.profile} className="flex size-8 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 hover:bg-zinc-50">
+              <UserRound className="size-4" />
+            </Link>
             <Link
               href={`/${pathname.startsWith(`/fr`) ? "en" : "fr"}/dashboard/${site.id}`}
               className="rounded-lg border border-zinc-200 px-2.5 py-1.5 text-[12px] font-medium text-zinc-600 hover:bg-zinc-50"

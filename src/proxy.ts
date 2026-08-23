@@ -1,5 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_LOCALE, LOCALES } from "@/i18n/messages";
+import NextAuth from "next-auth";
+import authConfig from "@/auth.config";
+
+const { auth } = NextAuth(authConfig);
 
 /** Hosts under which a first label is treated as a tenant subdomain. */
 const ROOT_DOMAINS = ["batiste.app", "lvh.me", "localhost"];
@@ -29,7 +33,7 @@ function pickLocale(request: NextRequest): string {
   return DEFAULT_LOCALE;
 }
 
-export function middleware(request: NextRequest) {
+export default auth((request) => {
   const { pathname, search } = request.nextUrl;
 
   if (
@@ -64,10 +68,18 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
+  const isPrivate = segments[1] === "dashboard" || segments[1] === "onboarding" || segments[1] === "profile";
+  if (isPrivate && !request.auth?.user) {
+    const login = request.nextUrl.clone();
+    login.pathname = `/${segments[0]}/login`;
+    login.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(login);
+  }
+
   const response = NextResponse.next();
   response.headers.set("x-batiste-locale", segments[0]);
   return response;
-}
+});
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
