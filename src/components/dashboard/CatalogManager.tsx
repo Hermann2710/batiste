@@ -12,15 +12,12 @@ import {
   Button,
   Card,
   EmptyState,
-  Field,
   IconButton,
-  Input,
-  Modal,
   PageHeader,
-  Textarea,
 } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 import { formatPrice } from "@/lib/utils";
+import ProductEditor, { type ProductDraft } from "./ProductEditor";
 
 export interface ManagedProduct {
   id: string;
@@ -34,7 +31,7 @@ export interface ManagedProduct {
   status: string;
 }
 
-const emptyDraft = {
+const emptyDraft: ProductDraft = {
   productId: undefined as string | undefined,
   name: "",
   description: "",
@@ -54,7 +51,7 @@ export default function CatalogManager({
 }) {
   const { locale, t } = useI18n();
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(emptyDraft);
+  const [draft, setDraft] = useState<ProductDraft>(emptyDraft);
   const [pending, startTransition] = useTransition();
 
   const openCreate = () => {
@@ -188,134 +185,7 @@ export default function CatalogManager({
         </Card>
       )}
 
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        title={draft.productId ? t.catalog.editProduct : t.catalog.newProduct}
-        size="lg"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
-              {t.common.cancel}
-            </Button>
-            <Button loading={pending} onClick={save} disabled={!draft.name.trim()}>
-              {t.common.save}
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t.catalog.name} required>
-              <Input
-                value={draft.name}
-                onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-                autoFocus
-              />
-            </Field>
-            <Field label={t.catalog.category}>
-              <Input
-                value={draft.category}
-                onChange={(event) => setDraft({ ...draft, category: event.target.value })}
-              />
-            </Field>
-            <Field label={`${t.catalog.price} (€)`}>
-              <Input
-                type="number"
-                step="0.01"
-                value={draft.price}
-                onChange={(event) => setDraft({ ...draft, price: event.target.value })}
-              />
-            </Field>
-            <Field label={t.catalog.imageUrl}>
-              <Input
-                value={draft.imageUrl}
-                onChange={(event) => setDraft({ ...draft, imageUrl: event.target.value })}
-                placeholder="https://…"
-              />
-            </Field>
-          </div>
-
-          <Field label={t.catalog.description}>
-            <Textarea
-              rows={3}
-              value={draft.description}
-              onChange={(event) => setDraft({ ...draft, description: event.target.value })}
-            />
-          </Field>
-
-          <div className="rounded-xl border border-zinc-200 p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-[13px] font-medium text-zinc-700">
-                {t.catalog.customAttributes}
-              </span>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                  setDraft({ ...draft, attributes: [...draft.attributes, { key: "", value: "" }] })
-                }
-              >
-                + {t.catalog.addAttribute}
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {draft.attributes.map((attribute, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    placeholder={t.catalog.attributeKey}
-                    value={attribute.key}
-                    onChange={(event) => {
-                      const next = [...draft.attributes];
-                      next[index] = { ...next[index], key: event.target.value };
-                      setDraft({ ...draft, attributes: next });
-                    }}
-                  />
-                  <Input
-                    placeholder={t.catalog.attributeValue}
-                    value={attribute.value}
-                    onChange={(event) => {
-                      const next = [...draft.attributes];
-                      next[index] = { ...next[index], value: event.target.value };
-                      setDraft({ ...draft, attributes: next });
-                    }}
-                  />
-                  <IconButton
-                    label={t.common.delete}
-                    onClick={() =>
-                      setDraft({
-                        ...draft,
-                        attributes: draft.attributes.filter((_, i) => i !== index),
-                      })
-                    }
-                  >
-                    ✕
-                  </IconButton>
-                </div>
-              ))}
-              {draft.attributes.length === 0 && (
-                <p className="text-[12.5px] text-zinc-400">—</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {(["draft", "published"] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setDraft({ ...draft, status })}
-                className={`rounded-xl border-2 px-4 py-2 text-[13px] font-medium transition ${
-                  draft.status === status
-                    ? "border-zinc-900 bg-zinc-50 text-zinc-900"
-                    : "border-zinc-200 text-zinc-500"
-                }`}
-              >
-                {status === "draft" ? t.common.draft : t.common.published}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Modal>
+      <ProductEditor open={open} draft={draft} pending={pending} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
     </div>
   );
 }

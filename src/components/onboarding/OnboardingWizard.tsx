@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import gsap from "gsap";
 import { createSiteAction } from "@/actions/sites";
-import { Button, Field, Input } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
-import { LOCALES, LOCALE_LABELS, type Locale } from "@/i18n/messages";
+import { type Locale } from "@/i18n/messages";
 import { DEFAULT_THEMES } from "@/lib/themes";
-import ThemePicker from "./ThemePicker";
+import { LanguageStep, NameStep, ThemeStep, WizardActions } from "./OnboardingSteps";
 import { cn, slugify } from "@/lib/utils";
 
 const STEPS = 3;
@@ -91,99 +91,13 @@ export default function OnboardingWizard() {
         </div>
 
         <div ref={stepContentRef} className="mt-8 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(24,24,27,0.45)] sm:p-7">
-          {step === 1 && (
-            <div className="space-y-5">
-              <h2 className="text-base font-semibold tracking-tight">{t.onboarding.stepName}</h2>
-              <Field hint={t.onboarding.stepNameHelp}>
-                <Input
-                  autoFocus
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder={t.onboarding.namePlaceholder}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && name.trim().length >= 2) setStep(2);
-                  }}
-                />
-              </Field>
-              <div className="rounded-xl bg-zinc-50 px-4 py-3 text-[13px] text-zinc-500">
-                <span className="font-mono text-zinc-900">{subdomain}</span>.batiste.app
-              </div>
-            </div>
-          )}
+          {step === 1 && <NameStep name={name} setName={setName} onContinue={() => setStep(2)} help={t.onboarding.stepNameHelp} placeholder={t.onboarding.namePlaceholder} />}
 
-          {step === 2 && (
-            <div className="space-y-5">
-              <h2 className="text-base font-semibold tracking-tight">{t.onboarding.stepTheme}</h2>
-              <ThemePicker selected={themeId} onSelect={setThemeId} />
-              <p className="text-xs text-zinc-500">{t.onboarding.stepThemeHelp}</p>
-            </div>
-          )}
+          {step === 2 && <ThemeStep themeId={themeId} setThemeId={setThemeId} title={t.onboarding.stepTheme} help={t.onboarding.stepThemeHelp} />}
 
-          {step === 3 && (
-            <div className="space-y-5">
-              <h2 className="text-base font-semibold tracking-tight">
-                {t.onboarding.stepLanguage}
-              </h2>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {LOCALES.map((code) => (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={() => setLanguage(code)}
-                    className={cn(
-                      "flex items-center justify-between rounded-xl border-2 px-4 py-3 text-sm transition",
-                      language === code
-                        ? "border-zinc-900 bg-zinc-50"
-                        : "border-zinc-200 hover:border-zinc-300"
-                    )}
-                  >
-                    <span className="font-medium">{LOCALE_LABELS[code]}</span>
-                    <span className="text-xs uppercase text-zinc-400">{code}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-zinc-500">{t.onboarding.stepLanguageHelp}</p>
+          {step === 3 && <LanguageStep language={language} setLanguage={setLanguage} title={t.onboarding.stepLanguage} help={t.onboarding.stepLanguageHelp} name={name} themeId={themeId} themeLabel={t.settings.theme} languageLabel={t.settings.defaultLanguage} />}
 
-              <dl className="space-y-1.5 rounded-xl bg-zinc-50 px-4 py-3 text-[13px]">
-                <div className="flex justify-between">
-                  <dt className="text-zinc-500">{t.onboarding.stepName}</dt>
-                  <dd className="font-medium">{name}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-zinc-500">{t.settings.theme}</dt>
-                  <dd className="font-medium">
-                    {DEFAULT_THEMES.find((theme) => theme.id === themeId)?.name}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-zinc-500">{t.settings.defaultLanguage}</dt>
-                  <dd className="font-medium">{LOCALE_LABELS[language]}</dd>
-                </div>
-              </dl>
-            </div>
-          )}
-
-          <div className="mt-8 flex items-center justify-between gap-3">
-            <Button
-              variant="ghost"
-              onClick={() => setStep((value) => Math.max(1, value - 1))}
-              disabled={step === 1 || pending}
-            >
-              {t.common.back}
-            </Button>
-            {step < STEPS ? (
-              <Button
-                onClick={() => setStep((value) => value + 1)}
-                disabled={step === 1 && name.trim().length < 2}
-              >
-                {t.common.next}
-              </Button>
-            ) : (
-              <Button onClick={submit} loading={pending}>
-                {pending ? t.onboarding.creating : t.onboarding.createSite}
-              </Button>
-            )}
-          </div>
+          <WizardActions step={step} pending={pending} onBack={() => setStep((value) => Math.max(1, value - 1))} onNext={() => setStep((value) => value + 1)} onSubmit={submit} back={t.common.back} next={t.common.next} create={t.onboarding.createSite} creating={t.onboarding.creating} canContinue={name.trim().length >= 2} />
         </div>
       </div>
     </div>
