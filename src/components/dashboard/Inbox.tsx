@@ -130,7 +130,7 @@ export default function Inbox({ submissions }: { submissions: InboxItem[] }) {
                   {Object.entries(payload).map(([key, value]) => (
                     <div key={key} className="flex gap-2">
                       <dt className="shrink-0 font-medium text-zinc-500">{key}</dt>
-                      <dd className="min-w-0 break-words text-zinc-900">{String(value)}</dd>
+                      <dd className="min-w-0 wrap-break-word text-zinc-900">{String(value)}</dd>
                     </div>
                   ))}
                 </dl>

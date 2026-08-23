@@ -8,6 +8,7 @@ import BlockView, { type PublicProduct } from "@/components/site/BlockView";
 import { themeStyle } from "@/lib/themes";
 import { getMessages, normalizeLocale, type Locale } from "@/i18n/messages";
 import { formatDate, formatPrice } from "@/lib/utils";
+import { isSupportedLocale, publicLanguagePrefix, publicPath } from "@/lib/public-site";
 
 const ROOT_DOMAINS = ["batiste.app", "lvh.me", "localhost"];
 
@@ -62,12 +63,15 @@ export default async function PublicSite({
   }
 
   const { site, theme } = data;
-  const supported = ((site.supportedLanguages as string[]) ?? [site.defaultLanguage]).filter(Boolean);
+  const defaultLanguage = isSupportedLocale(site.defaultLanguage) ? site.defaultLanguage : "fr";
+  const supported: Locale[] = [defaultLanguage, ...(((site.supportedLanguages as string[]) ?? [])
+    .filter(isSupportedLocale)
+    .filter((language, index, languages) => languages.indexOf(language) === index))];
 
   const segments = [...slug];
-  let language = site.defaultLanguage;
-  if (segments.length && supported.includes(segments[0])) {
-    language = segments.shift() as string;
+  let language = defaultLanguage;
+  if (segments.length && isSupportedLocale(segments[0]) && supported.includes(segments[0])) {
+    language = segments.shift() as Locale;
   }
   const locale = normalizeLocale(language) as Locale;
   const t = getMessages(locale);
@@ -75,8 +79,8 @@ export default async function PublicSite({
   const host = (await headers()).get("host")?.split(":")[0] ?? "";
   const onSubdomain = ROOT_DOMAINS.some((root) => host.endsWith(`.${root}`) && host.startsWith(`${subdomain}.`));
   const root = onSubdomain ? "" : `/s/${subdomain}`;
-  const prefix = language === site.defaultLanguage ? root : `${root}/${language}`;
-  const href = (path: string) => `${prefix}${path ? `/${path}` : ""}` || "/";
+  const prefix = publicLanguagePrefix(root, language, defaultLanguage);
+  const href = (path: string) => publicPath(prefix, path);
 
   const flags = await db.select().from(featureFlags).where(eq(featureFlags.siteId, site.id));
   const features = Object.fromEntries(flags.map((flag) => [flag.feature, Boolean(flag.isEnabled)]));
@@ -143,6 +147,28 @@ export default async function PublicSite({
       : [];
 
   const singlePost = blogSlug ? posts.find((post) => post.slug === blogSlug) : undefined;
+  const languageTargets = await Promise.all(
+    supported.map(async (code) => {
+      const targetPrefix = publicLanguagePrefix(root, code, defaultLanguage);
+      if (!segments.length) return publicPath(targetPrefix);
+      if (segments[0] === "catalog") return publicPath(targetPrefix, "catalog");
+      if (segments[0] === "blog") {
+        if (segments.length === 1) return publicPath(targetPrefix, "blog");
+        const targetPost = await db
+          .select({ slug: blogPosts.slug })
+          .from(blogPosts)
+          .where(and(eq(blogPosts.siteId, site.id), eq(blogPosts.slug, segments[1]), eq(blogPosts.language, code), eq(blogPosts.status, "published")))
+          .limit(1);
+        return targetPost[0] ? publicPath(targetPrefix, `blog/${targetPost[0].slug}`) : publicPath(targetPrefix, "blog");
+      }
+      const targetPage = await db
+        .select({ slug: pages.slug })
+        .from(pages)
+        .where(and(eq(pages.siteId, site.id), eq(pages.slug, route), eq(pages.language, code), eq(pages.status, "published")))
+        .limit(1);
+      return targetPage[0] ? publicPath(targetPrefix, targetPage[0].slug) : publicPath(targetPrefix);
+    })
+  );
   const categories = Array.from(
     new Set(publicProducts.map((product) => product.category).filter(Boolean))
   ) as string[];
@@ -190,8 +216,8 @@ export default async function PublicSite({
 
           {supported.length > 1 && (
             <div className="ml-auto flex items-center gap-1 text-[12px]">
-              {supported.map((code) => {
-                const target = code === site.defaultLanguage ? root : `${root}/${code}`;
+              {supported.map((code, index) => {
+                const target = languageTargets[index];
                 return (
                   <Link
                     key={code}
@@ -347,6 +373,7 @@ export default async function PublicSite({
                   pageId: currentPage.id,
                   locale,
                   products: publicProducts,
+                  publicPrefix: prefix,
                 }}
               />
             ))

@@ -44,7 +44,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center font-medium transition-[background-color,border-color,box-shadow,transform] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70",
+        "inline-flex items-center justify-center font-medium transition-[background-color,border-color,box-shadow,transform] focus-visible:outline focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70",
         buttonVariants[variant],
         buttonSizes[size],
         className

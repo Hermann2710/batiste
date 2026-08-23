@@ -6,6 +6,7 @@ import { submitPublicFormAction } from "@/actions/catalog";
 import { formatPrice } from "@/lib/utils";
 import { getMessages, type Locale } from "@/i18n/messages";
 import { useScrollReveal } from "@/lib/animations";
+import { publicPath } from "@/lib/public-site";
 
 export interface PublicProduct {
   id: string;
@@ -23,6 +24,7 @@ export interface BlockViewContext {
   pageId: string | null;
   locale: Locale;
   products: PublicProduct[];
+  publicPrefix?: string;
   /** true inside the editor preview: forms are inert */
   preview?: boolean;
 }
@@ -37,6 +39,12 @@ const str = (value: unknown, fallback = "") =>
   typeof value === "string" && value.trim() ? value : fallback;
 const list = (value: unknown): Record<string, unknown>[] =>
   Array.isArray(value) ? (value as Record<string, unknown>[]) : [];
+
+function blockHref(value: unknown, prefix: string | undefined) {
+  const target = str(value, "#");
+  if (!prefix || target.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(target)) return target;
+  return publicPath(prefix, target);
+}
 
 function Section({
   children,
@@ -238,7 +246,7 @@ function renderBlock(
             {str(content.buttonText) && (
               <div data-anim="scale" data-delay="0.2" className="mt-8">
                 <a
-                  href={str(content.buttonUrl, "#")}
+                  href={blockHref(content.buttonUrl, ctx.publicPrefix)}
                   className="site-button inline-block px-6 py-3.5 text-sm font-medium transition hover:opacity-90"
                 >
                   {str(content.buttonText)}
@@ -290,7 +298,7 @@ function renderBlock(
                   </p>
                   {str(card.buttonUrl) && (
                     <a
-                      href={str(card.buttonUrl)}
+                      href={blockHref(card.buttonUrl, ctx.publicPrefix)}
                       className="mt-4 inline-block text-[13px] font-medium underline underline-offset-4"
                       style={{ color: "var(--c-primary)" }}
                     >
@@ -321,7 +329,7 @@ function renderBlock(
             {str(content.buttonText) && (
               <a
                 data-anim="scale" data-delay="0.2"
-                href={str(content.buttonUrl, "#")}
+                href={blockHref(content.buttonUrl, ctx.publicPrefix)}
                 className="mt-8 inline-block px-6 py-3.5 text-sm font-medium transition hover:opacity-90 hover:scale-[1.05] active:scale-[0.97]"
                 style={{
                   background: "var(--c-on-primary)",
