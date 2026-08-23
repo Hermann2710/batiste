@@ -2,22 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { upsertProductAction } from "@/actions/catalog";
 import {
-  deleteProductAction,
-  toggleProductStatusAction,
-  upsertProductAction,
-} from "@/actions/catalog";
-import {
-  Badge,
   Button,
-  Card,
   EmptyState,
-  IconButton,
   PageHeader,
 } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
-import { formatPrice } from "@/lib/utils";
 import ProductEditor, { type ProductDraft } from "./ProductEditor";
+import ProductTable from "./ProductTable";
 
 export interface ManagedProduct {
   id: string;
@@ -116,73 +109,7 @@ export default function CatalogManager({
           action={<Button onClick={openCreate}>{t.catalog.newProduct}</Button>}
         />
       ) : (
-        <Card className="overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50/70 text-[12px] uppercase tracking-wide text-zinc-500">
-              <tr>
-                <th className="px-5 py-3 font-medium">{t.catalog.name}</th>
-                <th className="px-5 py-3 font-medium">{t.catalog.category}</th>
-                <th className="px-5 py-3 font-medium">{t.catalog.price}</th>
-                <th className="px-5 py-3 font-medium">{t.settings.visibility}</th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-zinc-50/60">
-                  <td className="px-5 py-3">
-                    <p className="font-medium text-zinc-900">{product.name}</p>
-                    {product.description && (
-                      <p className="mt-0.5 line-clamp-1 text-[12.5px] text-zinc-500">
-                        {product.description}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-[13px] text-zinc-500">
-                    {product.category || "—"}
-                  </td>
-                  <td className="px-5 py-3 text-[13px]">
-                    {formatPrice(product.price, product.currency ?? "EUR", `${locale}-FR`) ?? "—"}
-                  </td>
-                  <td className="px-5 py-3">
-                    <button
-                      onClick={() =>
-                        startTransition(async () => {
-                          const result = await toggleProductStatusAction(product.id);
-                          if (result.ok) toast.success(t.common.savedToast);
-                          else toast.error(t.common.genericError);
-                        })
-                      }
-                    >
-                      <Badge tone={product.status === "published" ? "success" : "neutral"}>
-                        {product.status === "published" ? t.common.published : t.common.draft}
-                      </Badge>
-                    </button>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex justify-end gap-1">
-                      <IconButton label={t.common.edit} onClick={() => openEdit(product)}>
-                        ✎
-                      </IconButton>
-                      <IconButton
-                        label={t.common.delete}
-                        onClick={() =>
-                          startTransition(async () => {
-                            const result = await deleteProductAction(product.id);
-                            if (result.ok) toast.success(t.catalog.productDeleted);
-                            else toast.error(t.common.genericError);
-                          })
-                        }
-                      >
-                        ✕
-                      </IconButton>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
+        <ProductTable products={products} locale={locale} t={t} onEdit={openEdit} />
       )}
 
       <ProductEditor open={open} draft={draft} pending={pending} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
