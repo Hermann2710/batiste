@@ -13,13 +13,15 @@ import {
   updateBlockContentAction,
   updatePageAction,
 } from "@/actions/content";
-import { BLOCK_REGISTRY, BLOCK_TYPES, getBlockDef, type FieldDef } from "@/lib/blocks";
-import { Badge, Button, Card, EmptyState, Field, IconButton, Input, Modal, Select, Switch, Textarea } from "@/components/ui";
+import { BLOCK_REGISTRY, BLOCK_TYPES } from "@/lib/blocks";
+import { Badge, Button, Card, EmptyState, Field, IconButton, Input, Modal, Select, Textarea } from "@/components/ui";
 import BlockView, { type PublicProduct } from "@/components/site/BlockView";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { themeStyle } from "@/lib/themes";
 import type { Locale } from "@/i18n/messages";
+import BlockInspector from "./BlockInspector";
+import BlockList from "./BlockList";
 
 export interface BuilderBlock {
   id: string;
@@ -133,145 +135,6 @@ export default function PageBuilder({
     run(() => reorderBlocksAction(activePage.id, next.map((block) => block.id)));
   };
 
-  /* ------------------------------------------------------------ renderers */
-
-  const renderField = (
-    field: FieldDef,
-    value: unknown,
-    onChange: (next: unknown) => void,
-    keyPrefix = ""
-  ) => {
-    const label = t.fields[field.labelKey] ?? field.key;
-
-    if (field.type === "boolean") {
-      return (
-        <div key={keyPrefix + field.key} className="flex items-center justify-between py-1">
-          <span className="text-[13px] font-medium text-zinc-700">{label}</span>
-          <Switch checked={Boolean(value)} onChange={onChange} label={label} />
-        </div>
-      );
-    }
-
-    if (field.type === "select") {
-      return (
-        <Field key={keyPrefix + field.key} label={label}>
-          <Select value={String(value ?? field.options?.[0] ?? "")} onChange={(e) => onChange(e.target.value)}>
-            {field.options?.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Select>
-        </Field>
-      );
-    }
-
-    if (field.type === "number") {
-      return (
-        <Field key={keyPrefix + field.key} label={label}>
-          <Input
-            type="number"
-            value={value === undefined || value === null ? "" : String(value)}
-            onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
-          />
-        </Field>
-      );
-    }
-
-    if (field.type === "textarea") {
-      return (
-        <Field key={keyPrefix + field.key} label={label}>
-          <Textarea rows={4} value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} />
-        </Field>
-      );
-    }
-
-    if (field.type === "list") {
-      const items = Array.isArray(value) ? (value as Record<string, unknown>[]) : [];
-      return (
-        <div key={keyPrefix + field.key} className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-medium text-zinc-700">{label}</span>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() =>
-                onChange([
-                  ...items,
-                  Object.fromEntries((field.itemFields ?? []).map((sub) => [sub.key, ""])),
-                ])
-              }
-            >
-              + {t.pages.addItem}
-            </Button>
-          </div>
-
-          <div className="space-y-2">
-            {items.map((item, index) => (
-              <div key={index} className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                    {t.pages.item} {index + 1}
-                  </span>
-                  <div className="flex items-center gap-0.5">
-                    <IconButton
-                      label={t.pages.moveUp}
-                      disabled={index === 0}
-                      onClick={() => {
-                        const next = [...items];
-                        [next[index - 1], next[index]] = [next[index], next[index - 1]];
-                        onChange(next);
-                      }}
-                    >
-                      ↑
-                    </IconButton>
-                    <IconButton
-                      label={t.pages.moveDown}
-                      disabled={index === items.length - 1}
-                      onClick={() => {
-                        const next = [...items];
-                        [next[index + 1], next[index]] = [next[index], next[index + 1]];
-                        onChange(next);
-                      }}
-                    >
-                      ↓
-                    </IconButton>
-                    <IconButton
-                      label={t.common.delete}
-                      onClick={() => onChange(items.filter((_, i) => i !== index))}
-                    >
-                      ✕
-                    </IconButton>
-                  </div>
-                </div>
-                <div className="space-y-2.5">
-                  {(field.itemFields ?? []).map((sub) =>
-                    renderField(
-                      sub,
-                      item[sub.key],
-                      (next) => {
-                        const copy = [...items];
-                        copy[index] = { ...copy[index], [sub.key]: next };
-                        onChange(copy);
-                      },
-                      `${keyPrefix}${field.key}-${index}-`
-                    )
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <Field key={keyPrefix + field.key} label={label}>
-        <Input value={String(value ?? "")} onChange={(e) => onChange(e.target.value)} />
-      </Field>
-    );
-  };
-
   /* ----------------------------------------------------------------- JSX */
 
   return (
@@ -381,99 +244,7 @@ export default function PageBuilder({
               </div>
 
               {view === "structure" ? (
-                <Card className="p-3">
-                  {blocks.length === 0 ? (
-                    <EmptyState
-                      title={t.pages.noBlocks}
-                      action={<Button onClick={() => setLibraryOpen(true)}>{t.pages.addBlock}</Button>}
-                    />
-                  ) : (
-                    <ul className="space-y-1.5">
-                      {blocks.map((block, index) => {
-                        const def = getBlockDef(block.type);
-                        return (
-                          <li
-                            key={block.id}
-                            draggable
-                            onDragStart={() => (dragIndex.current = index)}
-                            onDragOver={(event) => event.preventDefault()}
-                            onDrop={() => handleDrop(index)}
-                            onClick={() => setSelectedBlockId(block.id)}
-                            className={cn(
-                              "group flex cursor-grab items-center gap-3 rounded-xl border px-3 py-2.5 transition active:cursor-grabbing",
-                              selectedBlockId === block.id
-                                ? "border-zinc-900 bg-zinc-50"
-                                : "border-zinc-200 hover:border-zinc-300"
-                            )}
-                          >
-                            <span className="text-zinc-300">⠿</span>
-                            <span className="flex size-7 items-center justify-center rounded-lg bg-zinc-900 text-[12px] text-white">
-                              {def?.icon ?? "▪"}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-[13px] font-medium text-zinc-900">
-                                {t.blocks[block.type as keyof typeof t.blocks] ?? block.type}
-                              </p>
-                              <p className="truncate text-[12px] text-zinc-400">
-                                {String(block.content.title ?? "—")}
-                              </p>
-                            </div>
-                            {!block.isVisible && <Badge>{t.pages.hidden}</Badge>}
-                            <div className="flex items-center opacity-0 transition group-hover:opacity-100">
-                              <IconButton
-                                label={t.pages.visible}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  setBlocks((current) =>
-                                    current.map((item) =>
-                                      item.id === block.id
-                                        ? { ...item, isVisible: !item.isVisible }
-                                        : item
-                                    )
-                                  );
-                                  run(() => toggleBlockVisibilityAction(block.id));
-                                }}
-                              >
-                                {block.isVisible ? "◉" : "◌"}
-                              </IconButton>
-                              <IconButton
-                                label={t.pages.duplicate}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  run(() => duplicateBlockAction(block.id));
-                                }}
-                              >
-                                ⧉
-                              </IconButton>
-                              <IconButton
-                                label={t.common.delete}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  setBlocks((current) =>
-                                    current.filter((item) => item.id !== block.id)
-                                  );
-                                  if (selectedBlockId === block.id) setSelectedBlockId(null);
-                                  run(() => deleteBlockAction(block.id), t.pages.blockDeleted);
-                                }}
-                              >
-                                ✕
-                              </IconButton>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-
-                  {blocks.length > 0 && (
-                    <button
-                      onClick={() => setLibraryOpen(true)}
-                      className="mt-2 w-full rounded-xl border border-dashed border-zinc-300 py-3 text-[13px] font-medium text-zinc-500 transition hover:border-zinc-400 hover:text-zinc-900"
-                    >
-                      + {t.pages.addBlock}
-                    </button>
-                  )}
-                </Card>
+                <BlockList blocks={blocks} selectedBlockId={selectedBlockId} t={t} onSelect={setSelectedBlockId} onDragStart={(index) => { dragIndex.current = index; }} onDrop={handleDrop} onAdd={() => setLibraryOpen(true)} onToggle={(block) => { setBlocks((current) => current.map((item) => item.id === block.id ? { ...item, isVisible: !item.isVisible } : item)); run(() => toggleBlockVisibilityAction(block.id)); }} onDuplicate={(block) => run(() => duplicateBlockAction(block.id))} onDelete={(block) => { setBlocks((current) => current.filter((item) => item.id !== block.id)); if (selectedBlockId === block.id) setSelectedBlockId(null); run(() => deleteBlockAction(block.id), t.pages.blockDeleted); }} />
               ) : (
                 <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
                   <div className="flex items-center gap-1.5 border-b border-zinc-200 bg-zinc-50 px-4 py-2">
@@ -518,16 +289,7 @@ export default function PageBuilder({
                 <h3 className="text-sm font-semibold tracking-tight">{t.pages.properties}</h3>
                 <Badge>{t.blocks[selectedBlock.type as keyof typeof t.blocks] ?? selectedBlock.type}</Badge>
               </div>
-              <div className="scroll-slim max-h-[65vh] space-y-3.5 overflow-y-auto pr-1">
-                {(getBlockDef(selectedBlock.type)?.fields ?? []).map((field) =>
-                  renderField(field, selectedBlock.content[field.key], (next) =>
-                    patchBlockContent(selectedBlock.id, {
-                      ...selectedBlock.content,
-                      [field.key]: next,
-                    })
-                  )
-                )}
-              </div>
+              <BlockInspector block={selectedBlock} t={t} onChange={(content) => patchBlockContent(selectedBlock.id, content)} />
             </div>
           ) : (
             <p className="py-10 text-center text-[13px] text-zinc-400">{t.pages.selectBlock}</p>
