@@ -82,16 +82,21 @@ export default function PageBuilder({
   const [pageSettingsOpen, setPageSettingsOpen] = useState(false);
   const dragIndex = useRef<number | null>(null);
 
-  useEffect(() => {
-    const next = pages.find((page) => page.id === activePageId) ?? visiblePages[0] ?? null;
-    setBlocks(next?.blocks ?? []);
-    if (next && next.id !== activePageId) setActivePageId(next.id);
-    if (!next) setActivePageId(null);
-    setSelectedBlockId(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, language]);
-
   const selectedBlock = blocks.find((block) => block.id === selectedBlockId) ?? null;
+
+  const selectLanguage = (nextLanguage: string) => {
+    setLanguage(nextLanguage);
+    const nextPage = pages.find((page) => page.language === nextLanguage);
+    setActivePageId(nextPage?.id ?? null);
+    setBlocks(nextPage?.blocks ?? []);
+    setSelectedBlockId(null);
+  };
+
+  const selectPage = (page: BuilderPage) => {
+    setActivePageId(page.id);
+    setBlocks(page.blocks);
+    setSelectedBlockId(null);
+  };
 
   /* ------------------------------------------------------------- helpers */
 
@@ -107,18 +112,13 @@ export default function PageBuilder({
 
   /* -------------------------------------------------------- block edition */
 
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const patchBlockContent = (blockId: string, content: Record<string, unknown>) => {
     setBlocks((current) =>
       current.map((block) => (block.id === blockId ? { ...block, content } : block))
     );
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      void updateBlockContentAction(blockId, content).then((result) => {
-        if (!result.ok) toast.error(t.common.genericError);
-      });
-    }, 600);
+    void updateBlockContentAction(blockId, content).then((result) => {
+      if (!result.ok) toast.error(t.common.genericError);
+    });
   };
 
   const handleDrop = (targetIndex: number) => {
@@ -286,7 +286,7 @@ export default function PageBuilder({
             <Select
               className="h-10 w-auto py-0"
               value={language}
-              onChange={(event) => setLanguage(event.target.value)}
+              onChange={(event) => selectLanguage(event.target.value)}
             >
               {languages.map((code) => (
                 <option key={code} value={code}>
@@ -328,7 +328,7 @@ export default function PageBuilder({
               {visiblePages.map((page) => (
                 <li key={page.id}>
                   <button
-                    onClick={() => setActivePageId(page.id)}
+                    onClick={() => selectPage(page)}
                     className={cn(
                       "w-full rounded-lg px-3 py-2 text-left transition-colors",
                       page.id === activePage?.id ? "bg-zinc-900 text-white" : "hover:bg-zinc-100"
@@ -584,6 +584,7 @@ export default function PageBuilder({
       {/* Page settings */}
       {activePage && (
         <PageSettingsModal
+          key={activePage.id}
           open={pageSettingsOpen}
           onClose={() => setPageSettingsOpen(false)}
           page={activePage}
@@ -677,13 +678,6 @@ function PageSettingsModal({
   const [seoTitle, setSeoTitle] = useState(page.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(page.seoDescription ?? "");
   const [pending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setTitle(page.title);
-    setSlug(page.slug);
-    setSeoTitle(page.seoTitle ?? "");
-    setSeoDescription(page.seoDescription ?? "");
-  }, [page]);
 
   return (
     <Modal

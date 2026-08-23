@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { createPortal } from "react-dom";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 
@@ -312,8 +313,8 @@ export function Modal({
 
   if (!open) return null;
 
-  return (
-    <div role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()} className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-zinc-950/50 p-4 backdrop-blur-sm sm:p-8">
+  const content = (
+    <div role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()} className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-zinc-950/50 p-4 backdrop-blur-sm sm:p-8">
       <div
         ref={ref}
         role="dialog"
@@ -342,6 +343,7 @@ export function Modal({
       </div>
     </div>
   );
+  return typeof document === "undefined" ? null : createPortal(content, document.body);
 }
 
 /* -------------------------------------------------------------- EmptyState */
