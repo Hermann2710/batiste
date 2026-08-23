@@ -30,7 +30,7 @@ export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   return (
     <form action={formAction} className="space-y-4">
       <a
-        href={`/api/auth/google?locale=${locale}`}
+        href={`/api/auth/signin/google?callbackUrl=/${locale}/dashboard`}
         className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white text-sm font-medium text-zinc-800 transition hover:bg-zinc-50"
       >
         <Globe2 className="size-4" aria-hidden="true" />

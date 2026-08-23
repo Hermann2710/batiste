@@ -64,9 +64,12 @@ export default async function PublicSite({
 
   const { site, theme } = data;
   const defaultLanguage = isSupportedLocale(site.defaultLanguage) ? site.defaultLanguage : "fr";
-  const supported: Locale[] = [defaultLanguage, ...(((site.supportedLanguages as string[]) ?? [])
-    .filter(isSupportedLocale)
-    .filter((language, index, languages) => languages.indexOf(language) === index))];
+  const supported: Locale[] = Array.from(
+    new Set([
+      defaultLanguage,
+      ...(((site.supportedLanguages as string[]) ?? []).filter(isSupportedLocale)),
+    ])
+  );
 
   const segments = [...slug];
   let language = defaultLanguage;

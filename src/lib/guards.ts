@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { featureFlags, siteMembers, sites, themes, type Site, type User } from "@/db/schema";
-import { getSession } from "@/lib/session";
+import { auth } from "@/auth";
 import type { FeatureId } from "@/lib/utils";
 import { DEFAULT_LOCALE, type Locale } from "@/i18n/messages";
 import { users } from "@/db/schema";
@@ -10,9 +10,9 @@ import { users } from "@/db/schema";
 export type Role = "owner" | "admin" | "editor";
 
 export async function getUser(): Promise<User | null> {
-  const session = await getSession();
-  if (!session) return null;
-  const rows = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const rows = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
   return rows[0] ?? null;
 }
 
@@ -72,19 +72,19 @@ export async function assertSiteAccess(
   siteId: string,
   allowedRoles: Role[] = ["owner", "admin", "editor"]
 ): Promise<{ user: User; site: Site; role: Role }> {
-  const session = await getSession();
-  if (!session) throw new Error("UNAUTHORIZED");
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("UNAUTHORIZED");
 
   const rows = await db
     .select({ site: sites, role: siteMembers.role })
     .from(siteMembers)
     .innerJoin(sites, eq(siteMembers.siteId, sites.id))
-    .where(and(eq(siteMembers.siteId, siteId), eq(siteMembers.userId, session.userId)))
+    .where(and(eq(siteMembers.siteId, siteId), eq(siteMembers.userId, session.user.id)))
     .limit(1);
 
   const row = rows[0];
   if (!row || !allowedRoles.includes(row.role as Role)) throw new Error("FORBIDDEN");
 
-  const userRows = await db.select().from(users).where(eq(users.id, session.userId)).limit(1);
+  const userRows = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
   return { user: userRows[0], site: row.site, role: row.role as Role };
 }

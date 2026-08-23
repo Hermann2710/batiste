@@ -2,14 +2,14 @@
 
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { createSession } from "@/lib/session";
 import { rateLimit } from "@/lib/utils";
 import { normalizeLocale } from "@/i18n/messages";
+import { signIn as authSignIn, signOut as authSignOut } from "@/auth";
+import { AuthError } from "next-auth";
 
 export interface AuthState {
   error?: "invalid_credentials" | "email_taken" | "rate_limited" | "validation" | "unknown";
@@ -31,18 +31,6 @@ async function clientKey(prefix: string) {
   return `${prefix}:${ip}`;
 }
 
-export async function openSession(userId: string, email: string) {
-  const token = await createSession(userId, email);
-  const store = await cookies();
-  store.set("batiste_session", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 30,
-  });
-}
-
 export async function signInAction(
   rawLocale: string,
   _prev: AuthState,
@@ -58,17 +46,17 @@ export async function signInAction(
   });
   if (!parsed.success) return { error: "validation" };
 
-  const rows = await db.select().from(users).where(eq(users.email, parsed.data.email)).limit(1);
-  const user = rows[0];
-  if (!user) return { error: "invalid_credentials" };
-
-  const valid = user.passwordHash
-    ? await bcrypt.compare(parsed.data.password, user.passwordHash)
-    : false;
-  if (!valid) return { error: "invalid_credentials" };
-
-  await openSession(user.id, user.email);
-  redirect(`/${locale}/dashboard`);
+  try {
+    await authSignIn("credentials", {
+      email: parsed.data.email,
+      password: parsed.data.password,
+      redirectTo: `/${locale}/dashboard`,
+    });
+  } catch (error) {
+    if (error instanceof AuthError) return { error: "invalid_credentials" };
+    throw error;
+  }
+  return {};
 }
 
 export async function signUpAction(
@@ -106,13 +94,15 @@ export async function signUpAction(
     })
     .returning();
 
-  await openSession(created.id, created.email);
-  redirect(`/${locale}/onboarding`);
+  await authSignIn("credentials", {
+    email: created.email,
+    password: parsed.data.password,
+    redirectTo: `/${locale}/onboarding`,
+  });
+  return {};
 }
 
 export async function signOutAction(rawLocale: string) {
   const locale = normalizeLocale(rawLocale);
-  const store = await cookies();
-  store.delete("batiste_session");
-  redirect(`/${locale}`);
+  await authSignOut({ redirectTo: `/${locale}` });
 }
