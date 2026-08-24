@@ -36,6 +36,11 @@ const profileSchema = z.object({
   avatarUrl: z.string().trim().url().or(z.literal("")),
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
 async function clientKey(prefix: string) {
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
@@ -137,6 +142,32 @@ export async function updateProfileAction(formData: FormData): Promise<ProfileSt
       image: parsed.data.avatarUrl || null,
       updatedAt: new Date(),
     }).where(eq(users.id, session.user.id));
+    return { ok: true };
+  } catch {
+    return { error: "unknown" };
+  }
+}
+
+export async function changePasswordAction(formData: FormData): Promise<ProfileState> {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "unauthorized" };
+
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: String(formData.get("currentPassword") ?? ""),
+    newPassword: String(formData.get("newPassword") ?? ""),
+  });
+  if (!parsed.success) return { error: "validation" };
+
+  const rows = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+  const user = rows[0];
+  if (!user?.passwordHash) return { error: "unknown" };
+
+  const valid = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
+  if (!valid) return { error: "invalid_credentials" as ProfileState["error"] };
+
+  const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
+  try {
+    await db.update(users).set({ passwordHash: newHash, updatedAt: new Date() }).where(eq(users.id, session.user.id));
     return { ok: true };
   } catch {
     return { error: "unknown" };

@@ -97,7 +97,6 @@ export async function deleteTestimonialAction(
 }
 
 export async function getTestimonials(siteId: string) {
-  await assertSiteAccess(siteId);
   return db
     .select()
     .from(testimonials)

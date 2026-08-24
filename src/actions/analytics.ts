@@ -1,6 +1,6 @@
 "use server";
 
-import { and, count, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { analyticsEvents, sites } from "@/db/schema";
 import { assertSiteAccess } from "@/lib/guards";
@@ -23,24 +23,24 @@ export async function getAnalyticsSummary(
 
   const [totals] = await db
     .select({
-      totalViews: count(),
+      totalViews: sql<number>`count(*)::int`,
       uniqueVisitors: sql<number>`count(distinct ${analyticsEvents.visitorId})::int`,
     })
     .from(analyticsEvents)
     .where(and(eq(analyticsEvents.siteId, siteId), gte(analyticsEvents.createdAt, since)));
 
   const topPages = await db
-    .select({ path: analyticsEvents.path, views: count() })
+    .select({ path: analyticsEvents.path, views: sql<number>`count(*)::int` })
     .from(analyticsEvents)
     .where(and(eq(analyticsEvents.siteId, siteId), gte(analyticsEvents.createdAt, since)))
     .groupBy(analyticsEvents.path)
-    .orderBy(desc(count()))
+    .orderBy(sql`count(*) desc`)
     .limit(10);
 
   const dailyRows = await db
     .select({
       date: sql<string>`to_char(${analyticsEvents.createdAt}, 'YYYY-MM-DD')`,
-      views: count(),
+      views: sql<number>`count(*)::int`,
     })
     .from(analyticsEvents)
     .where(and(eq(analyticsEvents.siteId, siteId), gte(analyticsEvents.createdAt, since)))

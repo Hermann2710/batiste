@@ -18,7 +18,7 @@ function ProfileAvatar({ collapsed, locale }: { collapsed: boolean; locale: stri
   const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "B";
   return (
     <Link
-      href={`/${locale}/profile`}
+      href={`/${locale}/dashboard/profile`}
       className={cn(
         "flex items-center gap-2.5 rounded-xl border border-zinc-200 px-2.5 py-2 text-[13px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50",
         collapsed && "justify-center px-2"
