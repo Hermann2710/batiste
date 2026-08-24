@@ -30,7 +30,7 @@ const productSchema = z.object({
   price: z.number().int().min(0).nullable().optional(),
   currency: z.string().length(3).default("EUR"),
   category: z.string().trim().max(100).optional(),
-  imageUrl: z.string().trim().max(500).optional(),
+  imageUrl: z.string().trim().url().max(500).optional(),
   customAttributes: z.record(z.string(), z.string()).default({}),
   status: z.enum(["draft", "published"]).default("draft"),
 });
@@ -117,7 +117,7 @@ const postSchema = z.object({
   content: z.string().trim().max(50_000).default(""),
   excerpt: z.string().trim().max(500).optional(),
   category: z.string().trim().max(100).optional(),
-  coverImage: z.string().trim().max(500).optional(),
+  coverImage: z.string().trim().url().max(500).optional(),
   language: z.enum(LOCALES),
   status: z.enum(["draft", "published"]).default("draft"),
 });
