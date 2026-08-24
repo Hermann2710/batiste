@@ -4,7 +4,15 @@ import { db } from "@/db";
 import { blogPosts, formSubmissions, pages, products } from "@/db/schema";
 import { requireSiteAccess } from "@/lib/guards";
 import { getMessages, normalizeLocale } from "@/i18n/messages";
-import { Badge, Card, CardBody, CardHeader, EmptyState, PageHeader, StatTile } from "@/components/ui";
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  EmptyState,
+  PageHeader,
+  StatTile,
+} from "@/components/ui";
 import { formatDateTime } from "@/lib/utils";
 import SiteStatusToggle from "@/components/dashboard/SiteStatusToggle";
 
@@ -19,7 +27,10 @@ export default async function OverviewPage({
   const { site, features } = await requireSiteAccess(siteId, locale);
 
   const [pageRows, productRows, postRows] = await Promise.all([
-    db.select({ value: sql<number>`count(*)::int` }).from(pages).where(eq(pages.siteId, siteId)),
+    db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(pages)
+      .where(eq(pages.siteId, siteId)),
     db
       .select({ value: sql<number>`count(*)::int` })
       .from(products)
@@ -37,7 +48,12 @@ export default async function OverviewPage({
   const [unread] = await db
     .select({ value: sql<number>`count(*)::int` })
     .from(formSubmissions)
-    .where(and(eq(formSubmissions.siteId, siteId), eq(formSubmissions.status, "new")));
+    .where(
+      and(
+        eq(formSubmissions.siteId, siteId),
+        eq(formSubmissions.status, "new"),
+      ),
+    );
 
   const latest = await db
     .select()
@@ -58,8 +74,12 @@ export default async function OverviewPage({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label={t.dashboard.statPages} value={pageCount} />
-        {features.catalog && <StatTile label={t.dashboard.statProducts} value={productCount} />}
-        {features.blog && <StatTile label={t.dashboard.statPosts} value={postCount} />}
+        {features.catalog && (
+          <StatTile label={t.dashboard.statProducts} value={productCount} />
+        )}
+        {features.blog && (
+          <StatTile label={t.dashboard.statPosts} value={postCount} />
+        )}
         <StatTile label={t.dashboard.statMessages} value={unread?.value ?? 0} />
       </div>
 
@@ -68,17 +88,24 @@ export default async function OverviewPage({
           <CardHeader title={t.dashboard.recentActivity} />
           <CardBody>
             {latest.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-zinc-400">{t.dashboard.noActivity}</p>
+              <p className="py-6 text-center text-[13px] text-zinc-400">
+                {t.dashboard.noActivity}
+              </p>
             ) : (
               <ul className="divide-y divide-zinc-100">
                 {latest.map((item) => (
-                  <li key={item.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                  <li
+                    key={item.id}
+                    className="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
+                  >
                     <Badge tone={item.status === "new" ? "warning" : "neutral"}>
                       {item.formType}
                     </Badge>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] text-zinc-700">
-                        {Object.values((item.data as Record<string, string>) ?? {})
+                        {Object.values(
+                          (item.data as Record<string, string>) ?? {},
+                        )
                           .slice(0, 2)
                           .join(" · ")}
                       </p>
@@ -104,8 +131,12 @@ export default async function OverviewPage({
           <CardBody className="space-y-2">
             {[
               { href: `${base}/pages`, label: t.pages.title },
-              features.catalog ? { href: `${base}/catalog`, label: t.catalog.title } : null,
-              features.blog ? { href: `${base}/blog`, label: t.blog.title } : null,
+              features.catalog
+                ? { href: `${base}/catalog`, label: t.catalog.title }
+                : null,
+              features.blog
+                ? { href: `${base}/blog`, label: t.blog.title }
+                : null,
               { href: `${base}/settings`, label: t.settings.title },
             ]
               .filter(Boolean)

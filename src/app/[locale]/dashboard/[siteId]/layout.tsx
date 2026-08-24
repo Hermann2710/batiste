@@ -25,7 +25,12 @@ export default async function SiteLayout({
   const [unread] = await db
     .select({ value: sql<number>`count(*)::int` })
     .from(formSubmissions)
-    .where(and(eq(formSubmissions.siteId, siteId), eq(formSubmissions.status, "new")));
+    .where(
+      and(
+        eq(formSubmissions.siteId, siteId),
+        eq(formSubmissions.status, "new"),
+      ),
+    );
 
   return (
     <SiteShell

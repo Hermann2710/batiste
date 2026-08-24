@@ -7,18 +7,29 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Batiste — Créez votre site vitrine",
-  description: "Plateforme de création de sites vitrines multilingues, sans code.",
+  description:
+    "Plateforme de création de sites vitrines multilingues, sans code.",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const headerList = await headers();
-  const locale = normalizeLocale(headerList.get("x-batiste-locale") ?? undefined);
+  const locale = normalizeLocale(
+    headerList.get("x-batiste-locale") ?? undefined,
+  );
 
   return (
     <html lang={locale}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600&family=Playfair+Display:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
           rel="stylesheet"

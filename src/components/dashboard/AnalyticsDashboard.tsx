@@ -1,14 +1,24 @@
 "use client";
 
 import { useI18n } from "@/i18n/client";
-import { Card, CardBody, CardHeader, EmptyState, PageHeader, StatTile } from "@/components/ui";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  EmptyState,
+  PageHeader,
+  StatTile,
+} from "@/components/ui";
 import type { AnalyticsSummary } from "@/actions/analytics";
 
 function MiniBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
-      <div className="h-full rounded-full bg-zinc-900 transition-all" style={{ width: `${pct}%` }} />
+      <div
+        className="h-full rounded-full bg-zinc-900 transition-all"
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 }
@@ -30,25 +40,40 @@ function SparkLine({ data }: { data: { date: string; views: number }[] }) {
   );
 }
 
-export default function AnalyticsDashboard({ summary }: { summary: AnalyticsSummary }) {
+export default function AnalyticsDashboard({
+  summary,
+}: {
+  summary: AnalyticsSummary;
+}) {
   const { t } = useI18n();
   const maxViews = Math.max(...summary.topPages.map((p) => p.views), 1);
 
   return (
     <div>
-      <PageHeader title={t.analytics.title} description={t.analytics.subtitle} />
+      <PageHeader
+        title={t.analytics.title}
+        description={t.analytics.subtitle}
+      />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <StatTile label={t.analytics.totalViews} value={summary.totalViews} />
-        <StatTile label={t.analytics.uniqueVisitors} value={summary.uniqueVisitors} />
+        <StatTile
+          label={t.analytics.uniqueVisitors}
+          value={summary.uniqueVisitors}
+        />
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card>
-          <CardHeader title={t.analytics.dailyViews} description={t.analytics.last30days} />
+          <CardHeader
+            title={t.analytics.dailyViews}
+            description={t.analytics.last30days}
+          />
           <CardBody>
             {summary.dailyViews.length === 0 ? (
-              <p className="py-6 text-center text-[13px] text-zinc-400">{t.analytics.noData}</p>
+              <p className="py-6 text-center text-[13px] text-zinc-400">
+                {t.analytics.noData}
+              </p>
             ) : (
               <SparkLine data={summary.dailyViews} />
             )}

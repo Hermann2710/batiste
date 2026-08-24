@@ -4,7 +4,16 @@ import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { changePasswordAction, updateProfileAction } from "@/actions/auth";
-import { Button, Card, CardBody, CardHeader, Field, ImageUpload, Input, PageHeader } from "@/components/ui";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Field,
+  ImageUpload,
+  Input,
+  PageHeader,
+} from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 
 export default function ProfileForm() {
@@ -16,7 +25,11 @@ export default function ProfileForm() {
     <ProfileEditor
       key={session.user.id}
       email={session.user.email ?? ""}
-      initial={{ firstName, lastName: lastNames.join(" "), avatarUrl: session.user.image ?? "" }}
+      initial={{
+        firstName,
+        lastName: lastNames.join(" "),
+        avatarUrl: session.user.image ?? "",
+      }}
       t={t}
     />
   );
@@ -46,7 +59,10 @@ function ProfileEditor({
         toast.error(t.common.genericError);
         return;
       }
-      await update({ name: `${form.firstName} ${form.lastName}`.trim(), image: form.avatarUrl || null });
+      await update({
+        name: `${form.firstName} ${form.lastName}`.trim(),
+        image: form.avatarUrl || null,
+      });
       toast.success(t.common.savedToast);
     });
   };
@@ -62,7 +78,11 @@ function ProfileEditor({
     startPwTransition(async () => {
       const result = await changePasswordAction(data);
       if (!result.ok) {
-        toast.error(result.error === "invalid_credentials" ? t.profile.wrongPassword : t.common.genericError);
+        toast.error(
+          (result.error as string) === "invalid_credentials"
+            ? t.profile.wrongPassword
+            : t.common.genericError,
+        );
         return;
       }
       setPw({ currentPassword: "", newPassword: "" });
@@ -88,7 +108,11 @@ function ProfileEditor({
           <div className="flex items-center gap-4 border-b border-zinc-100 pb-5">
             {form.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={form.avatarUrl} alt="" className="size-16 rounded-2xl object-cover" />
+              <img
+                src={form.avatarUrl}
+                alt=""
+                className="size-16 rounded-2xl object-cover"
+              />
             ) : (
               <div className="flex size-16 items-center justify-center rounded-2xl bg-zinc-900 text-xl font-semibold text-white">
                 {form.firstName.slice(0, 1).toUpperCase() || "B"}
@@ -104,7 +128,9 @@ function ProfileEditor({
             <Field label={t.auth.firstName}>
               <Input
                 value={form.firstName}
-                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, firstName: e.target.value })
+                }
               />
             </Field>
             <Field label={t.auth.lastName}>
@@ -116,7 +142,10 @@ function ProfileEditor({
           </div>
 
           <Field label={t.profile.avatarUrl} hint={t.profile.avatarHint}>
-            <ImageUpload value={form.avatarUrl} onChange={(avatarUrl) => setForm({ ...form, avatarUrl })} />
+            <ImageUpload
+              value={form.avatarUrl}
+              onChange={(avatarUrl) => setForm({ ...form, avatarUrl })}
+            />
           </Field>
         </CardBody>
       </Card>
@@ -136,7 +165,9 @@ function ProfileEditor({
             <Input
               type="password"
               value={pw.currentPassword}
-              onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })}
+              onChange={(e) =>
+                setPw({ ...pw, currentPassword: e.target.value })
+              }
               autoComplete="current-password"
             />
           </Field>

@@ -30,7 +30,7 @@ const createSiteSchema = z.object({
 });
 
 export async function createSiteAction(
-  input: z.infer<typeof createSiteSchema>
+  input: z.infer<typeof createSiteSchema>,
 ): Promise<ActionResult<{ siteId: string }>> {
   const user = await getUser();
   if (!user) return fail("unauthorized");
@@ -67,11 +67,19 @@ export async function createSiteAction(
     })
     .returning();
 
-  await db.insert(siteMembers).values({ siteId: site.id, userId: user.id, role: "owner" });
+  await db
+    .insert(siteMembers)
+    .values({ siteId: site.id, userId: user.id, role: "owner" });
 
   await db
     .insert(featureFlags)
-    .values(FEATURES.map((feature) => ({ siteId: site.id, feature, isEnabled: feature !== "booking" })));
+    .values(
+      FEATURES.map((feature) => ({
+        siteId: site.id,
+        feature,
+        isEnabled: feature !== "booking",
+      })),
+    );
 
   await db.insert(pages).values({
     siteId: site.id,
@@ -101,16 +109,21 @@ const settingsSchema = z.object({
 });
 
 export async function updateSiteSettingsAction(
-  input: z.infer<typeof settingsSchema>
+  input: z.infer<typeof settingsSchema>,
 ): Promise<ActionResult> {
   const parsed = settingsSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
 
   try {
-    const { site } = await assertSiteAccess(parsed.data.siteId, ["owner", "admin"]);
+    const { site } = await assertSiteAccess(parsed.data.siteId, [
+      "owner",
+      "admin",
+    ]);
     const data = parsed.data;
 
-    const supported = Array.from(new Set([...data.supportedLanguages, data.defaultLanguage]));
+    const supported = Array.from(
+      new Set([...data.supportedLanguages, data.defaultLanguage]),
+    );
 
     await db
       .update(sites)
@@ -131,7 +144,12 @@ export async function updateSiteSettingsAction(
       const existing = await db
         .select({ id: featureFlags.id })
         .from(featureFlags)
-        .where(and(eq(featureFlags.siteId, data.siteId), eq(featureFlags.feature, feature)))
+        .where(
+          and(
+            eq(featureFlags.siteId, data.siteId),
+            eq(featureFlags.feature, feature),
+          ),
+        )
         .limit(1);
 
       if (existing.length) {
@@ -140,14 +158,18 @@ export async function updateSiteSettingsAction(
           .set({ isEnabled, updatedAt: new Date() })
           .where(eq(featureFlags.id, existing[0].id));
       } else {
-        await db.insert(featureFlags).values({ siteId: data.siteId, feature, isEnabled });
+        await db
+          .insert(featureFlags)
+          .values({ siteId: data.siteId, feature, isEnabled });
       }
     }
 
     revalidateSite(site.subdomain);
     return { ok: true };
   } catch (error) {
-    return fail((error as Error).message === "FORBIDDEN" ? "forbidden" : "unknown");
+    return fail(
+      (error as Error).message === "FORBIDDEN" ? "forbidden" : "unknown",
+    );
   }
 }
 
@@ -158,15 +180,22 @@ export async function deleteSiteAction(siteId: string): Promise<ActionResult> {
     revalidateSite(site.subdomain);
     return { ok: true };
   } catch (error) {
-    return fail((error as Error).message === "FORBIDDEN" ? "forbidden" : "unknown");
+    return fail(
+      (error as Error).message === "FORBIDDEN" ? "forbidden" : "unknown",
+    );
   }
 }
 
-export async function toggleSiteStatusAction(siteId: string): Promise<ActionResult<{ status: string }>> {
+export async function toggleSiteStatusAction(
+  siteId: string,
+): Promise<ActionResult<{ status: string }>> {
   try {
     const { site } = await assertSiteAccess(siteId, ["owner", "admin"]);
     const next = site.status === "published" ? "draft" : "published";
-    await db.update(sites).set({ status: next, updatedAt: new Date() }).where(eq(sites.id, siteId));
+    await db
+      .update(sites)
+      .set({ status: next, updatedAt: new Date() })
+      .where(eq(sites.id, siteId));
     revalidateSite(site.subdomain);
     return { ok: true, data: { status: next } };
   } catch {
@@ -175,10 +204,14 @@ export async function toggleSiteStatusAction(siteId: string): Promise<ActionResu
 }
 
 /** Ensures every supported language has at least the homepage. */
-export async function syncLanguagePagesAction(siteId: string): Promise<ActionResult> {
+export async function syncLanguagePagesAction(
+  siteId: string,
+): Promise<ActionResult> {
   try {
     const { site } = await assertSiteAccess(siteId, ["owner", "admin"]);
-    const langs = (site.supportedLanguages as string[]) ?? [site.defaultLanguage];
+    const langs = (site.supportedLanguages as string[]) ?? [
+      site.defaultLanguage,
+    ];
     const existing = await db
       .select({ language: pages.language })
       .from(pages)

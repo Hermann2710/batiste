@@ -1,6 +1,13 @@
 import type { Messages } from "@/i18n/messages";
 
-export type FieldType = "text" | "textarea" | "url" | "number" | "boolean" | "select" | "list";
+export type FieldType =
+  | "text"
+  | "textarea"
+  | "url"
+  | "number"
+  | "boolean"
+  | "select"
+  | "list";
 
 export interface FieldDef {
   key: string;
@@ -44,7 +51,12 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
       { key: "imageUrl", labelKey: "imageUrl", type: "url" },
       { key: "buttonText", labelKey: "buttonText", type: "text" },
       { key: "buttonUrl", labelKey: "buttonUrl", type: "text" },
-      { key: "alignment", labelKey: "alignment", type: "select", options: ["center", "left"] },
+      {
+        key: "alignment",
+        labelKey: "alignment",
+        type: "select",
+        options: ["center", "left"],
+      },
       { key: "overlay", labelKey: "overlay", type: "boolean" },
     ],
     defaults: {
@@ -62,7 +74,12 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
     icon: "▦",
     fields: [
       { key: "title", labelKey: "title", type: "text" },
-      { key: "columns", labelKey: "columns", type: "select", options: ["2", "3", "4"] },
+      {
+        key: "columns",
+        labelKey: "columns",
+        type: "select",
+        options: ["2", "3", "4"],
+      },
       {
         key: "cards",
         labelKey: "cards",
@@ -79,9 +96,24 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
       title: "Nos services",
       columns: "3",
       cards: [
-        { title: "Service 1", description: "Décrivez cette prestation.", imageUrl: "", buttonUrl: "" },
-        { title: "Service 2", description: "Décrivez cette prestation.", imageUrl: "", buttonUrl: "" },
-        { title: "Service 3", description: "Décrivez cette prestation.", imageUrl: "", buttonUrl: "" },
+        {
+          title: "Service 1",
+          description: "Décrivez cette prestation.",
+          imageUrl: "",
+          buttonUrl: "",
+        },
+        {
+          title: "Service 2",
+          description: "Décrivez cette prestation.",
+          imageUrl: "",
+          buttonUrl: "",
+        },
+        {
+          title: "Service 3",
+          description: "Décrivez cette prestation.",
+          imageUrl: "",
+          buttonUrl: "",
+        },
       ],
     },
   },
@@ -91,7 +123,12 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
     fields: [
       { key: "title", labelKey: "title", type: "text" },
       { key: "content", labelKey: "content", type: "textarea" },
-      { key: "alignment", labelKey: "alignment", type: "select", options: ["left", "center"] },
+      {
+        key: "alignment",
+        labelKey: "alignment",
+        type: "select",
+        options: ["left", "center"],
+      },
     ],
     defaults: {
       title: "À propos",
@@ -136,8 +173,18 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
     defaults: {
       title: "Ils nous font confiance",
       items: [
-        { quote: "Un travail soigné et des délais tenus.", name: "Camille D.", role: "Cliente", avatarUrl: "" },
-        { quote: "Une équipe à l'écoute du début à la fin.", name: "Marc L.", role: "Client", avatarUrl: "" },
+        {
+          quote: "Un travail soigné et des délais tenus.",
+          name: "Camille D.",
+          role: "Cliente",
+          avatarUrl: "",
+        },
+        {
+          quote: "Une équipe à l'écoute du début à la fin.",
+          name: "Marc L.",
+          role: "Client",
+          avatarUrl: "",
+        },
       ],
     },
   },
@@ -159,7 +206,9 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
     ],
     defaults: {
       title: "Réalisations",
-      slides: [{ imageUrl: "", title: "Projet", description: "Courte description." }],
+      slides: [
+        { imageUrl: "", title: "Projet", description: "Courte description." },
+      ],
     },
   },
   form: {
@@ -176,7 +225,12 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
         type: "list",
         itemFields: [
           { key: "label", labelKey: "label", type: "text" },
-          { key: "type", labelKey: "type", type: "select", options: ["text", "email", "tel", "textarea", "select"] },
+          {
+            key: "type",
+            labelKey: "type",
+            type: "select",
+            options: ["text", "email", "tel", "textarea", "select"],
+          },
           { key: "options", labelKey: "options", type: "text" },
           { key: "required", labelKey: "required", type: "boolean" },
         ],
@@ -190,7 +244,12 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
       fields: [
         { label: "Nom", type: "text", options: "", required: true },
         { label: "Email", type: "email", options: "", required: true },
-        { label: "Votre besoin", type: "textarea", options: "", required: true },
+        {
+          label: "Votre besoin",
+          type: "textarea",
+          options: "",
+          required: true,
+        },
       ],
     },
   },
@@ -220,9 +279,20 @@ export const BLOCK_REGISTRY: Record<BlockType, BlockDef> = {
       { key: "category", labelKey: "category", type: "text" },
       { key: "limit", labelKey: "limit", type: "number" },
       { key: "showPrice", labelKey: "showPrice", type: "boolean" },
-      { key: "columns", labelKey: "columns", type: "select", options: ["2", "3", "4"] },
+      {
+        key: "columns",
+        labelKey: "columns",
+        type: "select",
+        options: ["2", "3", "4"],
+      },
     ],
-    defaults: { title: "Notre catalogue", category: "", limit: 6, showPrice: true, columns: "3" },
+    defaults: {
+      title: "Notre catalogue",
+      category: "",
+      limit: 6,
+      showPrice: true,
+      columns: "3",
+    },
   },
   booking_form: {
     type: "booking_form",
@@ -245,7 +315,9 @@ export function getBlockDef(type: string): BlockDef | undefined {
 }
 
 /** Blocks that require a feature flag to be usable. */
-export const BLOCK_FEATURE_REQUIREMENT: Partial<Record<BlockType, "catalog" | "booking" | "quote" | "blog">> = {
+export const BLOCK_FEATURE_REQUIREMENT: Partial<
+  Record<BlockType, "catalog" | "booking" | "quote" | "blog">
+> = {
   product_grid: "catalog",
   booking_form: "booking",
 };

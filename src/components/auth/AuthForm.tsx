@@ -13,7 +13,7 @@ export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const action = mode === "signin" ? signInAction : signUpAction;
   const [state, formAction] = useActionState<AuthState, FormData>(
     action.bind(null, locale),
-    {}
+    {},
   );
   const [pendingGoogle, startGoogleSignIn] = useTransition();
 
@@ -34,20 +34,36 @@ export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
       <button
         type="button"
         disabled={pendingGoogle}
-        onClick={() => startGoogleSignIn(() => signIn("google", { callbackUrl: `/${locale}/dashboard` }))}
+        onClick={() =>
+          startGoogleSignIn(() =>
+            signIn("google", { callbackUrl: `/${locale}/dashboard` }),
+          )
+        }
         className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-zinc-300 bg-white text-sm font-medium text-zinc-800 transition hover:bg-zinc-50"
       >
         <Globe2 className="size-4" aria-hidden="true" />
         {t.auth.continueWithGoogle}
       </button>
-      <div className="flex items-center gap-3 text-xs text-zinc-400"><span className="h-px flex-1 bg-zinc-200" />{t.auth.or}<span className="h-px flex-1 bg-zinc-200" /></div>
+      <div className="flex items-center gap-3 text-xs text-zinc-400">
+        <span className="h-px flex-1 bg-zinc-200" />
+        {t.auth.or}
+        <span className="h-px flex-1 bg-zinc-200" />
+      </div>
       {mode === "signup" && (
         <div className="grid grid-cols-2 gap-3">
           <Field label={t.auth.firstName}>
-            <Input name="firstName" autoComplete="given-name" placeholder="Camille" />
+            <Input
+              name="firstName"
+              autoComplete="given-name"
+              placeholder="Camille"
+            />
           </Field>
           <Field label={t.auth.lastName}>
-            <Input name="lastName" autoComplete="family-name" placeholder="Durand" />
+            <Input
+              name="lastName"
+              autoComplete="family-name"
+              placeholder="Durand"
+            />
           </Field>
         </div>
       )}
@@ -62,7 +78,11 @@ export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         />
       </Field>
 
-      <Field label={t.auth.password} hint={mode === "signup" ? t.auth.passwordHint : undefined} required>
+      <Field
+        label={t.auth.password}
+        hint={mode === "signup" ? t.auth.passwordHint : undefined}
+        required
+      >
         <Input
           name="password"
           type="password"
@@ -73,7 +93,11 @@ export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         />
       </Field>
 
-      <SubmitButton size="lg" className="w-full" pendingLabel={t.common.loading}>
+      <SubmitButton
+        size="lg"
+        className="w-full"
+        pendingLabel={t.common.loading}
+      >
         {mode === "signin" ? t.auth.signIn : t.auth.signUp}
       </SubmitButton>
     </form>

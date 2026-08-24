@@ -42,7 +42,8 @@ const list = (value: unknown): Record<string, unknown>[] =>
 
 function blockHref(value: unknown, prefix: string | undefined) {
   const target = str(value, "#");
-  if (!prefix || target.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(target)) return target;
+  if (!prefix || target.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(target))
+    return target;
   return publicPath(prefix, target);
 }
 
@@ -75,7 +76,10 @@ function Heading({
   [key: string]: unknown;
 }) {
   return (
-    <h2 className={`site-heading text-[28px] font-semibold sm:text-[34px] ${className}`} {...rest}>
+    <h2
+      className={`site-heading text-[28px] font-semibold sm:text-[34px] ${className}`}
+      {...rest}
+    >
       {children}
     </h2>
   );
@@ -89,7 +93,12 @@ function PublicFormFields({
   formType,
   ctx,
 }: {
-  fields: { label: string; type: string; options?: string; required?: boolean }[];
+  fields: {
+    label: string;
+    type: string;
+    options?: string;
+    required?: boolean;
+  }[];
   submitText: string;
   successMessage: string;
   formType: "contact" | "quote" | "booking";
@@ -115,8 +124,13 @@ function PublicFormFields({
         const formEl = event.currentTarget;
         const formData = new FormData(formEl);
         const payload: Record<string, string> = {};
-        formData.forEach((value, key) => { payload[key] = String(value).slice(0, 5000); });
-        if (ctx.preview) { toast.info(t.common.preview); return; }
+        formData.forEach((value, key) => {
+          payload[key] = String(value).slice(0, 5000);
+        });
+        if (ctx.preview) {
+          toast.info(t.common.preview);
+          return;
+        }
         startTransition(async () => {
           const result = await submitPublicFormAction({
             siteId: ctx.siteId,
@@ -130,7 +144,9 @@ function PublicFormFields({
             formEl.reset();
           } else {
             toast.error(
-              result.error === "rate_limited" ? t.validation.rateLimited : t.common.genericError
+              result.error === "rate_limited"
+                ? t.validation.rateLimited
+                : t.common.genericError,
             );
           }
         });
@@ -141,18 +157,36 @@ function PublicFormFields({
         return (
           <div key={`${name}-${index}`} className="space-y-1.5">
             <label className="block text-[13px] font-medium">
-              {field.label} {field.required && <span className="ml-0.5 opacity-60">*</span>}
+              {field.label}{" "}
+              {field.required && <span className="ml-0.5 opacity-60">*</span>}
             </label>
             {field.type === "textarea" ? (
-              <textarea name={name} required={field.required} rows={4} className="site-input w-full px-3.5 py-2.5 text-sm" />
+              <textarea
+                name={name}
+                required={field.required}
+                rows={4}
+                className="site-input w-full px-3.5 py-2.5 text-sm"
+              />
             ) : field.type === "select" ? (
-              <select name={name} required={field.required} className="site-input w-full px-3.5 py-2.5 text-sm">
-                {String(field.options ?? "").split("|").filter(Boolean).map((option) => (
-                  <option key={option}>{option.trim()}</option>
-                ))}
+              <select
+                name={name}
+                required={field.required}
+                className="site-input w-full px-3.5 py-2.5 text-sm"
+              >
+                {String(field.options ?? "")
+                  .split("|")
+                  .filter(Boolean)
+                  .map((option) => (
+                    <option key={option}>{option.trim()}</option>
+                  ))}
               </select>
             ) : (
-              <input name={name} type={field.type || "text"} required={field.required} className="site-input w-full px-3.5 py-2.5 text-sm" />
+              <input
+                name={name}
+                type={field.type || "text"}
+                required={field.required}
+                className="site-input w-full px-3.5 py-2.5 text-sm"
+              />
             )}
           </div>
         );
@@ -187,23 +221,34 @@ function renderBlock(
   type: string,
   content: Record<string, unknown>,
   ctx: BlockViewContext,
-  t: ReturnType<typeof getMessages>
+  t: ReturnType<typeof getMessages>,
 ): React.ReactNode {
   switch (type) {
     case "hero": {
       const align = str(content.alignment, "center");
       const image = str(content.imageUrl);
       return (
-        <section className="relative overflow-hidden" style={{ background: "var(--c-surface)" }}>
+        <section
+          className="relative overflow-hidden"
+          style={{ background: "var(--c-surface)" }}
+        >
           {image && (
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${image})` }}
+            />
           )}
-          {image && content.overlay !== false && <div className="absolute inset-0 bg-black/45" />}
+          {image && content.overlay !== false && (
+            <div className="absolute inset-0 bg-black/45" />
+          )}
           <div
             className={`relative mx-auto max-w-4xl px-6 py-24 sm:py-32 ${align === "left" ? "text-left" : "text-center"}`}
             style={image ? { color: "#fff" } : undefined}
           >
-            <h1 data-anim="up" className="site-heading text-[38px] font-semibold leading-[1.08] sm:text-[54px]">
+            <h1
+              data-anim="up"
+              className="site-heading text-[38px] font-semibold leading-[1.08] sm:text-[54px]"
+            >
               {str(content.title, "…")}
             </h1>
             {str(content.subtitle) && (
@@ -234,12 +279,25 @@ function renderBlock(
       const align = str(content.alignment, "left");
       return (
         <Section>
-          <div className={`mx-auto max-w-3xl ${align === "center" ? "text-center" : ""}`}>
-            {str(content.title) && <Heading className="mb-5" data-anim="up">{str(content.title)}</Heading>}
-            <div data-anim="fade" data-delay="0.15" className="space-y-4 text-[15px] leading-[1.75] opacity-85">
-              {str(content.content).split("\n").filter((line) => line.trim()).map((line, index) => (
-                <p key={index}>{line}</p>
-              ))}
+          <div
+            className={`mx-auto max-w-3xl ${align === "center" ? "text-center" : ""}`}
+          >
+            {str(content.title) && (
+              <Heading className="mb-5" data-anim="up">
+                {str(content.title)}
+              </Heading>
+            )}
+            <div
+              data-anim="fade"
+              data-delay="0.15"
+              className="space-y-4 text-[15px] leading-[1.75] opacity-85"
+            >
+              {str(content.content)
+                .split("\n")
+                .filter((line) => line.trim())
+                .map((line, index) => (
+                  <p key={index}>{line}</p>
+                ))}
             </div>
           </div>
         </Section>
@@ -248,10 +306,19 @@ function renderBlock(
 
     case "card_grid": {
       const columns = Number(str(content.columns, "3"));
-      const gridClass = columns === 2 ? "sm:grid-cols-2" : columns === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
+      const gridClass =
+        columns === 2
+          ? "sm:grid-cols-2"
+          : columns === 4
+            ? "sm:grid-cols-2 lg:grid-cols-4"
+            : "sm:grid-cols-3";
       return (
         <Section surface>
-          {str(content.title) && <Heading data-anim="up" className="mb-10 text-center">{str(content.title)}</Heading>}
+          {str(content.title) && (
+            <Heading data-anim="up" className="mb-10 text-center">
+              {str(content.title)}
+            </Heading>
+          )}
           <div className={`grid gap-5 ${gridClass}`}>
             {list(content.cards).map((card, index) => (
               <div
@@ -262,11 +329,19 @@ function renderBlock(
               >
                 {str(card.imageUrl) && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={str(card.imageUrl)} alt="" className="h-44 w-full object-cover" />
+                  <img
+                    src={str(card.imageUrl)}
+                    alt=""
+                    className="h-44 w-full object-cover"
+                  />
                 )}
                 <div className="p-5">
-                  <h3 className="site-heading text-[17px] font-semibold">{str(card.title)}</h3>
-                  <p className="site-muted mt-2 text-[14px] leading-relaxed">{str(card.description)}</p>
+                  <h3 className="site-heading text-[17px] font-semibold">
+                    {str(card.title)}
+                  </h3>
+                  <p className="site-muted mt-2 text-[14px] leading-relaxed">
+                    {str(card.description)}
+                  </p>
                   {str(card.buttonUrl) && (
                     <a
                       href={blockHref(card.buttonUrl, ctx.publicPrefix)}
@@ -288,14 +363,24 @@ function renderBlock(
       return (
         <section
           className="px-6 py-16 text-center sm:py-20"
-          style={{ background: "var(--c-primary)", color: "var(--c-on-primary)" }}
+          style={{
+            background: "var(--c-primary)",
+            color: "var(--c-on-primary)",
+          }}
         >
           <div className="mx-auto max-w-2xl">
-            <h2 data-anim="up" className="site-heading text-[28px] font-semibold sm:text-[34px]">
+            <h2
+              data-anim="up"
+              className="site-heading text-[28px] font-semibold sm:text-[34px]"
+            >
               {str(content.title)}
             </h2>
             {str(content.description) && (
-              <p data-anim="fade" data-delay="0.1" className="mt-3 text-[15px] opacity-85">
+              <p
+                data-anim="fade"
+                data-delay="0.1"
+                className="mt-3 text-[15px] opacity-85"
+              >
                 {str(content.description)}
               </p>
             )}
@@ -322,7 +407,11 @@ function renderBlock(
     case "testimonials": {
       return (
         <Section>
-          {str(content.title) && <Heading data-anim="up" className="mb-10 text-center">{str(content.title)}</Heading>}
+          {str(content.title) && (
+            <Heading data-anim="up" className="mb-10 text-center">
+              {str(content.title)}
+            </Heading>
+          )}
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {list(content.items).map((item, index) => (
               <figure
@@ -337,7 +426,11 @@ function renderBlock(
                 <figcaption className="mt-5 flex items-center gap-3">
                   {str(item.avatarUrl) ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={str(item.avatarUrl)} alt="" className="size-9 rounded-full object-cover" />
+                    <img
+                      src={str(item.avatarUrl)}
+                      alt=""
+                      className="size-9 rounded-full object-cover"
+                    />
                   ) : (
                     <span
                       className="flex size-9 items-center justify-center rounded-full text-xs font-medium"
@@ -362,19 +455,33 @@ function renderBlock(
       const slides = list(content.slides);
       return (
         <Section surface>
-          {str(content.title) && <Heading className="mb-8">{str(content.title)}</Heading>}
+          {str(content.title) && (
+            <Heading className="mb-8">{str(content.title)}</Heading>
+          )}
           <div className="scroll-slim flex snap-x gap-4 overflow-x-auto pb-3">
             {slides.map((slide, index) => (
-              <figure key={index} className="site-card w-[300px] shrink-0 snap-start overflow-hidden">
+              <figure
+                key={index}
+                className="site-card w-[300px] shrink-0 snap-start overflow-hidden"
+              >
                 {str(slide.imageUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={str(slide.imageUrl)} alt="" className="h-48 w-full object-cover" />
+                  <img
+                    src={str(slide.imageUrl)}
+                    alt=""
+                    className="h-48 w-full object-cover"
+                  />
                 ) : (
-                  <div className="h-48 w-full" style={{ background: "var(--c-border)" }} />
+                  <div
+                    className="h-48 w-full"
+                    style={{ background: "var(--c-border)" }}
+                  />
                 )}
                 <figcaption className="p-4">
                   <p className="text-[14px] font-medium">{str(slide.title)}</p>
-                  <p className="site-muted mt-1 text-[13px]">{str(slide.description)}</p>
+                  <p className="site-muted mt-1 text-[13px]">
+                    {str(slide.description)}
+                  </p>
                 </figcaption>
               </figure>
             ))}
@@ -390,16 +497,29 @@ function renderBlock(
         .filter((p) => !category || p.category === category)
         .slice(0, limit);
       const columns = Number(str(content.columns, "3"));
-      const gridClass = columns === 2 ? "sm:grid-cols-2" : columns === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-3";
+      const gridClass =
+        columns === 2
+          ? "sm:grid-cols-2"
+          : columns === 4
+            ? "sm:grid-cols-2 lg:grid-cols-4"
+            : "sm:grid-cols-3";
       return (
         <Section>
-          {str(content.title) && <Heading data-anim="up" className="mb-10 text-center">{str(content.title)}</Heading>}
+          {str(content.title) && (
+            <Heading data-anim="up" className="mb-10 text-center">
+              {str(content.title)}
+            </Heading>
+          )}
           {items.length === 0 ? (
-            <p className="site-muted text-center text-sm">{t.publicSite.noProducts}</p>
+            <p className="site-muted text-center text-sm">
+              {t.publicSite.noProducts}
+            </p>
           ) : (
             <div className={`grid gap-5 ${gridClass}`}>
               {items.map((product, idx) => {
-                const image = Array.isArray(product.images) ? String(product.images[0] ?? "") : "";
+                const image = Array.isArray(product.images)
+                  ? String(product.images[0] ?? "")
+                  : "";
                 return (
                   <article
                     key={product.id}
@@ -409,22 +529,36 @@ function renderBlock(
                   >
                     {image ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={image} alt={product.name} className="h-44 w-full object-cover" />
+                      <img
+                        src={image}
+                        alt={product.name}
+                        className="h-44 w-full object-cover"
+                      />
                     ) : (
-                      <div className="h-44 w-full" style={{ background: "var(--c-surface)" }} />
+                      <div
+                        className="h-44 w-full"
+                        style={{ background: "var(--c-surface)" }}
+                      />
                     )}
                     <div className="p-5">
-                      <h3 className="site-heading text-[16px] font-semibold">{product.name}</h3>
+                      <h3 className="site-heading text-[16px] font-semibold">
+                        {product.name}
+                      </h3>
                       {product.description && (
                         <p className="site-muted mt-1.5 line-clamp-3 text-[13.5px] leading-relaxed">
                           {product.description}
                         </p>
                       )}
-                      {content.showPrice !== false && product.price !== null && (
-                        <p className="mt-3 text-[15px] font-semibold">
-                          {formatPrice(product.price, product.currency ?? "EUR", `${ctx.locale}-FR`)}
-                        </p>
-                      )}
+                      {content.showPrice !== false &&
+                        product.price !== null && (
+                          <p className="mt-3 text-[15px] font-semibold">
+                            {formatPrice(
+                              product.price,
+                              product.currency ?? "EUR",
+                              `${ctx.locale}-FR`,
+                            )}
+                          </p>
+                        )}
                     </div>
                   </article>
                 );
@@ -441,26 +575,33 @@ function renderBlock(
       const isBooking = type === "booking_form";
       const fields =
         type === "form"
-          ? (list(content.fields) as unknown as { label: string; type: string; options?: string; required?: boolean }[])
+          ? (list(content.fields) as unknown as {
+              label: string;
+              type: string;
+              options?: string;
+              required?: boolean;
+            }[])
           : isBooking
-          ? [
-              { label: "Nom", type: "text", required: true },
-              { label: "Email", type: "email", required: true },
-              { label: "Date", type: "text", required: true },
-              { label: "Message", type: "textarea", required: false },
-            ]
-          : [
-              { label: "Nom", type: "text", required: true },
-              { label: "Email", type: "email", required: true },
-              { label: "Message", type: "textarea", required: true },
-            ];
+            ? [
+                { label: "Nom", type: "text", required: true },
+                { label: "Email", type: "email", required: true },
+                { label: "Date", type: "text", required: true },
+                { label: "Message", type: "textarea", required: false },
+              ]
+            : [
+                { label: "Nom", type: "text", required: true },
+                { label: "Email", type: "email", required: true },
+                { label: "Message", type: "textarea", required: true },
+              ];
       return (
         <Section surface>
           <div className="mx-auto grid max-w-4xl gap-10 sm:grid-cols-2">
             <div data-anim="left">
               <Heading>{str(content.title, t.publicSite.send)}</Heading>
               {str(content.description) && (
-                <p className="site-muted mt-3 text-[15px] leading-relaxed">{str(content.description)}</p>
+                <p className="site-muted mt-3 text-[15px] leading-relaxed">
+                  {str(content.description)}
+                </p>
               )}
               <ul className="mt-6 space-y-2 text-[14px]">
                 {str(content.email) && <li>✉ {str(content.email)}</li>}
@@ -473,9 +614,17 @@ function renderBlock(
             </div>
             <PublicFormFields
               fields={fields}
-              submitText={str(content.submitText, isBooking ? t.publicSite.bookNow : t.publicSite.send)}
-              successMessage={str(content.successMessage, t.publicSite.messageSent)}
-              formType={type === "form" ? "quote" : isBooking ? "booking" : "contact"}
+              submitText={str(
+                content.submitText,
+                isBooking ? t.publicSite.bookNow : t.publicSite.send,
+              )}
+              successMessage={str(
+                content.successMessage,
+                t.publicSite.messageSent,
+              )}
+              formType={
+                type === "form" ? "quote" : isBooking ? "booking" : "contact"
+              }
               ctx={ctx}
             />
           </div>

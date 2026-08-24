@@ -38,7 +38,12 @@ export function useScrollReveal(containerRef: RefObject<HTMLElement | null>) {
       const type = item.dataset.anim || "up";
       const extraDelay = parseFloat(item.dataset.delay || "0");
 
-      const from: gsap.TweenVars = { opacity: 0, duration: DURATION, ease: EASE, delay: extraDelay };
+      const from: gsap.TweenVars = {
+        opacity: 0,
+        duration: DURATION,
+        ease: EASE,
+        delay: extraDelay,
+      };
 
       switch (type) {
         case "up":
@@ -101,7 +106,7 @@ export function useScrollReveal(containerRef: RefObject<HTMLElement | null>) {
 export function useStaggerReveal(
   containerRef: RefObject<HTMLElement | null>,
   selector = ":scope > *",
-  direction: "up" | "left" = "up"
+  direction: "up" | "left" = "up",
 ) {
   useEffect(() => {
     const el = containerRef.current;
@@ -150,19 +155,32 @@ export function useHeroEntrance(containerRef: RefObject<HTMLElement | null>) {
     const buttons = el.querySelector("[data-hero-buttons]");
     const preview = el.querySelector("[data-hero-preview]");
 
-    const targets = [badge, title, subtitle, buttons, preview].filter(Boolean) as HTMLElement[];
+    const targets = [badge, title, subtitle, buttons, preview].filter(
+      Boolean,
+    ) as HTMLElement[];
 
     gsap.set(targets, { opacity: 0, y: 30 });
 
     const tl = gsap.timeline({ delay: 0.15 });
 
     if (badge) tl.to(badge, { opacity: 1, y: 0, duration: 0.5, ease: EASE });
-    if (title) tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: EASE }, "-=0.3");
-    if (subtitle) tl.to(subtitle, { opacity: 1, y: 0, duration: 0.5, ease: EASE }, "-=0.35");
-    if (buttons) tl.to(buttons, { opacity: 1, y: 0, duration: 0.5, ease: EASE }, "-=0.3");
+    if (title)
+      tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: EASE }, "-=0.3");
+    if (subtitle)
+      tl.to(
+        subtitle,
+        { opacity: 1, y: 0, duration: 0.5, ease: EASE },
+        "-=0.35",
+      );
+    if (buttons)
+      tl.to(buttons, { opacity: 1, y: 0, duration: 0.5, ease: EASE }, "-=0.3");
     if (preview) {
       gsap.set(preview, { opacity: 0, y: 50, scale: 0.96 });
-      tl.to(preview, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: EASE }, "-=0.2");
+      tl.to(
+        preview,
+        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: EASE },
+        "-=0.2",
+      );
     }
 
     return () => {
@@ -173,10 +191,7 @@ export function useHeroEntrance(containerRef: RefObject<HTMLElement | null>) {
 
 /* ──────────────────── Parallax float on scroll ──────────────────────── */
 
-export function useParallax(
-  ref: RefObject<HTMLElement | null>,
-  speed = 0.15
-) {
+export function useParallax(ref: RefObject<HTMLElement | null>, speed = 0.15) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -205,7 +220,7 @@ export function useParallax(
 export function useCountUp(
   ref: RefObject<HTMLElement | null>,
   target: number,
-  duration = 1.5
+  duration = 1.5,
 ) {
   useEffect(() => {
     const el = ref.current;
@@ -235,7 +250,10 @@ export function useCountUp(
 
 /* ──────────── Magnetic hover (for buttons / icons) ──────────────────── */
 
-export function useMagneticHover(ref: RefObject<HTMLElement | null>, strength = 0.3) {
+export function useMagneticHover(
+  ref: RefObject<HTMLElement | null>,
+  strength = 0.3,
+) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -244,7 +262,12 @@ export function useMagneticHover(ref: RefObject<HTMLElement | null>, strength = 
       const rect = el.getBoundingClientRect();
       const x = e.clientX - rect.left - rect.width / 2;
       const y = e.clientY - rect.top - rect.height / 2;
-      gsap.to(el, { x: x * strength, y: y * strength, duration: 0.3, ease: "power2.out" });
+      gsap.to(el, {
+        x: x * strength,
+        y: y * strength,
+        duration: 0.3,
+        ease: "power2.out",
+      });
     };
 
     const onLeave = () => {
@@ -271,7 +294,10 @@ export function useSplitReveal(ref: RefObject<HTMLElement | null>) {
     const text = el.textContent || "";
     const words = text.split(/\s+/).filter(Boolean);
     el.innerHTML = words
-      .map((w) => `<span class="inline-block overflow-hidden"><span class="gsap-word inline-block">${w}</span></span>`)
+      .map(
+        (w) =>
+          `<span class="inline-block overflow-hidden"><span class="gsap-word inline-block">${w}</span></span>`,
+      )
       .join(" ");
 
     const wordSpans = el.querySelectorAll(".gsap-word");
@@ -308,9 +334,19 @@ export function useNavShrink(ref: RefObject<HTMLElement | null>) {
       start: 80,
       onUpdate(self) {
         if (self.direction === 1 && self.scroll() > 80) {
-          gsap.to(el, { height: 52, boxShadow: "0 1px 8px rgba(0,0,0,0.06)", duration: 0.3, ease: "power2.out" });
+          gsap.to(el, {
+            height: 52,
+            boxShadow: "0 1px 8px rgba(0,0,0,0.06)",
+            duration: 0.3,
+            ease: "power2.out",
+          });
         } else if (self.scroll() < 80) {
-          gsap.to(el, { height: 64, boxShadow: "none", duration: 0.3, ease: "power2.out" });
+          gsap.to(el, {
+            height: 64,
+            boxShadow: "none",
+            duration: 0.3,
+            ease: "power2.out",
+          });
         }
       },
     });

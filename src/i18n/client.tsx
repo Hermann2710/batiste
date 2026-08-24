@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { DEFAULT_LOCALE, getMessages, type Locale, type Messages } from "./messages";
+import {
+  DEFAULT_LOCALE,
+  getMessages,
+  type Locale,
+  type Messages,
+} from "./messages";
 
 interface I18nValue {
   locale: Locale;
@@ -34,5 +39,6 @@ export function useI18n() {
 /** Prefix a path with the active locale. */
 export function useLocalePath() {
   const { locale } = useI18n();
-  return (path: string) => `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
+  return (path: string) =>
+    `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
 }

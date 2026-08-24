@@ -3,7 +3,9 @@ import { db } from "@/db";
 import { themes } from "@/db/schema";
 import { DEFAULT_THEMES } from "@/lib/themes";
 
-const globalForSeed = globalThis as typeof globalThis & { __batisteThemesSeeded?: boolean };
+const globalForSeed = globalThis as typeof globalThis & {
+  __batisteThemesSeeded?: boolean;
+};
 
 /** Idempotent theme seeding so a fresh database is always usable. */
 export async function ensureThemesSeeded() {
@@ -20,7 +22,7 @@ export async function ensureThemesSeeded() {
           fonts: theme.fonts,
           borderRadius: theme.borderRadius,
           isActive: true,
-        }))
+        })),
       )
       .onConflictDoNothing({ target: themes.id });
     globalForSeed.__batisteThemesSeeded = true;

@@ -26,7 +26,13 @@ export default async function ProfileLayout({
     .limit(5);
 
   const name = user.name ?? user.email ?? "";
-  const initials = name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "B";
+  const initials =
+    name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "B";
 
   return (
     <I18nProvider locale={locale}>
@@ -40,7 +46,9 @@ export default async function ProfileLayout({
             >
               ← Mes sites
             </Link>
-            <p className="mt-3 text-sm font-semibold tracking-tight text-zinc-900">Mon profil</p>
+            <p className="mt-3 text-sm font-semibold tracking-tight text-zinc-900">
+              Mon profil
+            </p>
           </div>
 
           <nav className="flex-1 space-y-1 p-3">
@@ -74,7 +82,9 @@ export default async function ProfileLayout({
               <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-[11px] font-semibold text-white">
                 {initials}
               </div>
-              <span className="min-w-0 flex-1 truncate text-[12px] text-zinc-600">{user.email}</span>
+              <span className="min-w-0 flex-1 truncate text-[12px] text-zinc-600">
+                {user.email}
+              </span>
             </div>
             <SignOutButton variant="ghost" />
           </div>
@@ -83,10 +93,15 @@ export default async function ProfileLayout({
         {/* Mobile header */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200/80 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-            <Link href={`/${locale}/dashboard`} className="text-[13px] font-medium text-zinc-500">
+            <Link
+              href={`/${locale}/dashboard`}
+              className="text-[13px] font-medium text-zinc-500"
+            >
               ← Mes sites
             </Link>
-            <span className="text-[13px] font-semibold text-zinc-900">Mon profil</span>
+            <span className="text-[13px] font-semibold text-zinc-900">
+              Mon profil
+            </span>
           </header>
           <main className="flex-1 p-5 sm:p-8">{children}</main>
         </div>

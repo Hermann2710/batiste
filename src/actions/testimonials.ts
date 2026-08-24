@@ -17,7 +17,7 @@ const testimonialSchema = z.object({
 });
 
 export async function createTestimonialAction(
-  input: z.infer<typeof testimonialSchema>
+  input: z.infer<typeof testimonialSchema>,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = testimonialSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation" };
@@ -47,7 +47,7 @@ export async function createTestimonialAction(
 export async function updateTestimonialAction(
   id: string,
   siteId: string,
-  input: Partial<z.infer<typeof testimonialSchema>>
+  input: Partial<z.infer<typeof testimonialSchema>>,
 ): Promise<ActionResult> {
   try {
     await assertSiteAccess(siteId);
@@ -65,7 +65,7 @@ export async function updateTestimonialAction(
 export async function moderateTestimonialAction(
   id: string,
   siteId: string,
-  status: "approved" | "rejected" | "pending"
+  status: "approved" | "rejected" | "pending",
 ): Promise<ActionResult> {
   try {
     await assertSiteAccess(siteId);
@@ -82,7 +82,7 @@ export async function moderateTestimonialAction(
 
 export async function deleteTestimonialAction(
   id: string,
-  siteId: string
+  siteId: string,
 ): Promise<ActionResult> {
   try {
     await assertSiteAccess(siteId);

@@ -37,25 +37,49 @@ export const users = pgTable("users", {
 export const accounts = pgTable(
   "accounts",
   {
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 50 }).notNull(),
     provider: varchar("provider", { length: 100 }).notNull(),
-    providerAccountId: varchar("provider_account_id", { length: 255 }).notNull(),
-    refresh_token: text("refresh_token"), access_token: text("access_token"), expires_at: integer("expires_at"),
-    token_type: varchar("token_type", { length: 50 }), scope: text("scope"), id_token: text("id_token"), session_state: text("session_state"),
+    providerAccountId: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: varchar("token_type", { length: 50 }),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
   },
-  (table) => [primaryKey({ columns: [table.provider, table.providerAccountId] }), index("accounts_user_idx").on(table.userId)]
+  (table) => [
+    primaryKey({ columns: [table.provider, table.providerAccountId] }),
+    index("accounts_user_idx").on(table.userId),
+  ],
 );
 
-export const sessions = pgTable("sessions", {
-  sessionToken: varchar("session_token", { length: 255 }).primaryKey(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires").notNull(),
-}, (table) => [index("sessions_user_idx").on(table.userId)]);
+export const sessions = pgTable(
+  "sessions",
+  {
+    sessionToken: varchar("session_token", { length: 255 }).primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    expires: timestamp("expires").notNull(),
+  },
+  (table) => [index("sessions_user_idx").on(table.userId)],
+);
 
-export const verificationTokens = pgTable("verification_tokens", {
-  identifier: varchar("identifier", { length: 255 }).notNull(), token: varchar("token", { length: 255 }).notNull(), expires: timestamp("expires").notNull(),
-}, (table) => [primaryKey({ columns: [table.identifier, table.token] })]);
+export const verificationTokens = pgTable(
+  "verification_tokens",
+  {
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    token: varchar("token", { length: 255 }).notNull(),
+    expires: timestamp("expires").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.identifier, table.token] })],
+);
 
 // 2. THEMES - Liste des thèmes disponibles
 export const themes = pgTable("themes", {
@@ -100,7 +124,7 @@ export const sites = pgTable(
   (table) => [
     index("sites_subdomain_idx").on(table.subdomain),
     index("sites_owner_idx").on(table.ownerId),
-  ]
+  ],
 );
 
 // 4. SITE_MEMBERS - Qui a accès à quel site
@@ -121,7 +145,7 @@ export const siteMembers = pgTable(
     uniqueIndex("site_members_site_user_unique").on(table.siteId, table.userId),
     index("site_members_site_idx").on(table.siteId),
     index("site_members_user_idx").on(table.userId),
-  ]
+  ],
 );
 
 // 5. PAGES - Les pages d'un site
@@ -145,9 +169,13 @@ export const pages = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex("pages_site_slug_language_unique").on(table.siteId, table.slug, table.language),
+    uniqueIndex("pages_site_slug_language_unique").on(
+      table.siteId,
+      table.slug,
+      table.language,
+    ),
     index("pages_site_idx").on(table.siteId),
-  ]
+  ],
 );
 
 // 6. BLOCKS - Le contenu de chaque page
@@ -168,7 +196,7 @@ export const blocks = pgTable(
   (table) => [
     index("blocks_page_idx").on(table.pageId),
     uniqueIndex("blocks_page_position_unique").on(table.pageId, table.position),
-  ]
+  ],
 );
 
 // 7. PRODUCTS - Le catalogue universel d'un site
@@ -194,7 +222,7 @@ export const products = pgTable(
   (table) => [
     index("products_site_idx").on(table.siteId),
     index("products_site_status_idx").on(table.siteId, table.status),
-  ]
+  ],
 );
 
 // 8. FORM_SUBMISSIONS - Réponses aux formulaires
@@ -206,7 +234,9 @@ export const formSubmissions = pgTable(
       .notNull()
       .references(() => sites.id, { onDelete: "cascade" }),
     formType: varchar("form_type", { length: 50 }).notNull(), // contact, quote, booking, custom
-    pageId: uuid("page_id").references(() => pages.id, { onDelete: "set null" }),
+    pageId: uuid("page_id").references(() => pages.id, {
+      onDelete: "set null",
+    }),
     data: jsonb("data").notNull(),
     status: varchar("status", { length: 20 }).default("new").notNull(), // new, read, archived
     ipAddress: varchar("ip_address", { length: 45 }),
@@ -216,7 +246,7 @@ export const formSubmissions = pgTable(
   (table) => [
     index("form_submissions_site_idx").on(table.siteId),
     index("form_submissions_site_status_idx").on(table.siteId, table.status),
-  ]
+  ],
 );
 
 // 9. MEDIA - Fichiers uploadés
@@ -228,7 +258,9 @@ export const media = pgTable(
       .notNull()
       .references(() => sites.id, { onDelete: "cascade" }),
     url: text("url").notNull(),
-    provider: varchar("provider", { length: 30 }).notNull().default("cloudinary"),
+    provider: varchar("provider", { length: 30 })
+      .notNull()
+      .default("cloudinary"),
     providerAssetId: varchar("provider_asset_id", { length: 500 }),
     filename: varchar("filename", { length: 255 }).notNull(),
     mimeType: varchar("mime_type", { length: 100 }).notNull(),
@@ -238,7 +270,7 @@ export const media = pgTable(
     alt: varchar("alt", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [index("media_site_idx").on(table.siteId)]
+  (table) => [index("media_site_idx").on(table.siteId)],
 );
 
 // 10. FEATURE_FLAGS - Modules activés par site
@@ -257,8 +289,11 @@ export const featureFlags = pgTable(
   },
   (table) => [
     index("feature_flags_site_idx").on(table.siteId),
-    uniqueIndex("feature_flags_site_feature_unique").on(table.siteId, table.feature),
-  ]
+    uniqueIndex("feature_flags_site_feature_unique").on(
+      table.siteId,
+      table.feature,
+    ),
+  ],
 );
 
 // 11. ANALYTICS EVENTS - Visites légères par site
@@ -274,9 +309,15 @@ export const analyticsEvents = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
-    index("analytics_events_site_created_idx").on(table.siteId, table.createdAt),
-    index("analytics_events_site_visitor_idx").on(table.siteId, table.visitorId),
-  ]
+    index("analytics_events_site_created_idx").on(
+      table.siteId,
+      table.createdAt,
+    ),
+    index("analytics_events_site_visitor_idx").on(
+      table.siteId,
+      table.visitorId,
+    ),
+  ],
 );
 
 // 12. TESTIMONIALS - Avis clients avec modération
@@ -298,7 +339,7 @@ export const testimonials = pgTable(
   },
   (table) => [
     index("testimonials_site_status_idx").on(table.siteId, table.status),
-  ]
+  ],
 );
 
 // Blog posts (module Blog)
@@ -317,7 +358,9 @@ export const blogPosts = pgTable(
     coverImage: text("cover_image"),
     category: varchar("category", { length: 100 }),
     tags: jsonb("tags"), // array de strings
-    authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+    authorId: uuid("author_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     status: varchar("status", { length: 20 }).default("draft").notNull(), // draft, published
     publishedAt: timestamp("published_at"),
     seoTitle: varchar("seo_title", { length: 200 }),
@@ -328,8 +371,12 @@ export const blogPosts = pgTable(
   (table) => [
     index("blog_posts_site_idx").on(table.siteId),
     index("blog_posts_site_status_idx").on(table.siteId, table.status),
-    uniqueIndex("blog_posts_site_slug_language_unique").on(table.siteId, table.slug, table.language),
-  ]
+    uniqueIndex("blog_posts_site_slug_language_unique").on(
+      table.siteId,
+      table.slug,
+      table.language,
+    ),
+  ],
 );
 
 // Export types

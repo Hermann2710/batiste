@@ -3,11 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { upsertProductAction } from "@/actions/catalog";
-import {
-  Button,
-  EmptyState,
-  PageHeader,
-} from "@/components/ui";
+import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 import ProductEditor, { type ProductDraft } from "./ProductEditor";
 import ProductTable from "./ProductTable";
@@ -54,7 +50,7 @@ export default function CatalogManager({
 
   const openEdit = (product: ManagedProduct) => {
     const attributes = Object.entries(
-      (product.customAttributes as Record<string, string>) ?? {}
+      (product.customAttributes as Record<string, string>) ?? {},
     ).map(([key, value]) => ({ key, value: String(value) }));
     setDraft({
       productId: product.id,
@@ -62,7 +58,9 @@ export default function CatalogManager({
       description: product.description ?? "",
       price: product.price !== null ? String(product.price / 100) : "",
       category: product.category ?? "",
-      imageUrl: Array.isArray(product.images) ? String(product.images[0] ?? "") : "",
+      imageUrl: Array.isArray(product.images)
+        ? String(product.images[0] ?? "")
+        : "",
       attributes,
       status: product.status === "published" ? "published" : "draft",
     });
@@ -81,13 +79,17 @@ export default function CatalogManager({
         category: draft.category.trim() || undefined,
         imageUrl: draft.imageUrl.trim() || undefined,
         customAttributes: Object.fromEntries(
-          draft.attributes.filter((entry) => entry.key.trim()).map((entry) => [entry.key.trim(), entry.value])
+          draft.attributes
+            .filter((entry) => entry.key.trim())
+            .map((entry) => [entry.key.trim(), entry.value]),
         ),
         status: draft.status,
       });
 
       if (result.ok) {
-        toast.success(draft.productId ? t.catalog.productUpdated : t.catalog.productCreated);
+        toast.success(
+          draft.productId ? t.catalog.productUpdated : t.catalog.productCreated,
+        );
         setOpen(false);
       } else {
         toast.error(t.common.genericError);
@@ -109,10 +111,24 @@ export default function CatalogManager({
           action={<Button onClick={openCreate}>{t.catalog.newProduct}</Button>}
         />
       ) : (
-        <ProductTable products={products} locale={locale} t={t} onEdit={openEdit} />
+        <ProductTable
+          products={products}
+          locale={locale}
+          t={t}
+          onEdit={openEdit}
+        />
       )}
 
-      <ProductEditor open={open} draft={draft} pending={pending} siteId={siteId} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
+      <ProductEditor
+        open={open}
+        draft={draft}
+        pending={pending}
+        siteId={siteId}
+        t={t}
+        onClose={() => setOpen(false)}
+        onChange={setDraft}
+        onSave={save}
+      />
     </div>
   );
 }

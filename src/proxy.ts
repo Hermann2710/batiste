@@ -23,7 +23,8 @@ function resolveSubdomain(hostname: string): string | null {
 
 function pickLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get("batiste_locale")?.value;
-  if (cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale)) return cookieLocale;
+  if (cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale))
+    return cookieLocale;
 
   const header = request.headers.get("accept-language") ?? "";
   for (const part of header.split(",")) {
@@ -56,7 +57,8 @@ export default auth((request) => {
 
   // 2. Locale prefix for every application route.
   const segments = pathname.split("/").filter(Boolean);
-  const hasLocale = segments.length > 0 && (LOCALES as readonly string[]).includes(segments[0]);
+  const hasLocale =
+    segments.length > 0 && (LOCALES as readonly string[]).includes(segments[0]);
 
   if (!hasLocale) {
     const locale = pickLocale(request);
@@ -64,11 +66,17 @@ export default auth((request) => {
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     url.search = search;
     const response = NextResponse.redirect(url);
-    response.cookies.set("batiste_locale", locale, { path: "/", maxAge: 60 * 60 * 24 * 365 });
+    response.cookies.set("batiste_locale", locale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
     return response;
   }
 
-  const isPrivate = segments[1] === "dashboard" || segments[1] === "onboarding" || segments[1] === "profile";
+  const isPrivate =
+    segments[1] === "dashboard" ||
+    segments[1] === "onboarding" ||
+    segments[1] === "profile";
   if (isPrivate && !request.auth?.user) {
     const login = request.nextUrl.clone();
     login.pathname = `/${segments[0]}/login`;

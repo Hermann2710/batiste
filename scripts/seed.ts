@@ -3,16 +3,29 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+
 import {
-  themes, users, sites, siteMembers, featureFlags,
-  pages, blocks, products, blogPosts, testimonials,
+  themes,
+  users,
+  sites,
+  siteMembers,
+  featureFlags,
+  pages,
+  blocks,
+  products,
+  blogPosts,
+  testimonials,
 } from "../src/db/schema";
 
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required");
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
+
+// Activer le support WebSocket dans l'environnement Node.js
+neonConfig.webSocketConstructor = ws;
 
 // ── Thèmes ─────────────────────────────────────────────────────────────────
 const DEFAULT_THEMES = [
@@ -21,9 +34,14 @@ const DEFAULT_THEMES = [
     name: "Minimal",
     description: "Épuré, typographique, beaucoup d'air.",
     colors: {
-      primary: "#111111", onPrimary: "#FFFFFF", background: "#FFFFFF",
-      surface: "#F6F6F5", text: "#111111", muted: "#6B7280",
-      border: "#E5E5E3", accent: "#111111",
+      primary: "#111111",
+      onPrimary: "#FFFFFF",
+      background: "#FFFFFF",
+      surface: "#F6F6F5",
+      text: "#111111",
+      muted: "#6B7280",
+      border: "#E5E5E3",
+      accent: "#111111",
     },
     fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
     borderRadius: "0.5rem",
@@ -33,9 +51,14 @@ const DEFAULT_THEMES = [
     name: "Chaleureux",
     description: "Tons terre et serif élégante, artisanat et restauration.",
     colors: {
-      primary: "#9A3412", onPrimary: "#FFF7ED", background: "#FFFBF5",
-      surface: "#FDF0E2", text: "#3B1E10", muted: "#8A6A55",
-      border: "#EEDCC8", accent: "#C2410C",
+      primary: "#9A3412",
+      onPrimary: "#FFF7ED",
+      background: "#FFFBF5",
+      surface: "#FDF0E2",
+      text: "#3B1E10",
+      muted: "#8A6A55",
+      border: "#EEDCC8",
+      accent: "#C2410C",
     },
     fonts: { heading: "'Playfair Display', serif", body: "'Lora', serif" },
     borderRadius: "1rem",
@@ -45,9 +68,14 @@ const DEFAULT_THEMES = [
     name: "Corporate",
     description: "Sérieux et lisible, pour les services aux entreprises.",
     colors: {
-      primary: "#1D4ED8", onPrimary: "#FFFFFF", background: "#FFFFFF",
-      surface: "#F1F5F9", text: "#0F172A", muted: "#64748B",
-      border: "#E2E8F0", accent: "#0EA5E9",
+      primary: "#1D4ED8",
+      onPrimary: "#FFFFFF",
+      background: "#FFFFFF",
+      surface: "#F1F5F9",
+      text: "#0F172A",
+      muted: "#64748B",
+      border: "#E2E8F0",
+      accent: "#0EA5E9",
     },
     fonts: { heading: "'Inter', sans-serif", body: "'Inter', sans-serif" },
     borderRadius: "0.375rem",
@@ -57,11 +85,19 @@ const DEFAULT_THEMES = [
     name: "Audacieux",
     description: "Fond sombre, contraste fort, accents lumineux.",
     colors: {
-      primary: "#A78BFA", onPrimary: "#12101E", background: "#0E0D16",
-      surface: "#1A1826", text: "#F5F3FF", muted: "#A5A0BC",
-      border: "#2A2740", accent: "#FBBF24",
+      primary: "#A78BFA",
+      onPrimary: "#12101E",
+      background: "#0E0D16",
+      surface: "#1A1826",
+      text: "#F5F3FF",
+      muted: "#A5A0BC",
+      border: "#2A2740",
+      accent: "#FBBF24",
     },
-    fonts: { heading: "'Space Grotesk', sans-serif", body: "'DM Sans', sans-serif" },
+    fonts: {
+      heading: "'Space Grotesk', sans-serif",
+      body: "'DM Sans', sans-serif",
+    },
     borderRadius: "0.875rem",
   },
 ];
@@ -84,7 +120,7 @@ async function main() {
         fonts: t.fonts,
         borderRadius: t.borderRadius,
         isActive: true,
-      }))
+      })),
     )
     .onConflictDoNothing({ target: themes.id });
   console.log("✓ Thèmes seedés");
@@ -103,7 +139,11 @@ async function main() {
   }
 
   // 3. Utilisateur demo
-  let [user] = await db.select().from(users).where(eq(users.email, EMAIL)).limit(1);
+  let [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, EMAIL))
+    .limit(1);
   if (!user) {
     [user] = await db
       .insert(users)
@@ -135,13 +175,15 @@ async function main() {
     })
     .returning();
 
-  await db.insert(siteMembers).values({ siteId: site.id, userId: user.id, role: "owner" });
+  await db
+    .insert(siteMembers)
+    .values({ siteId: site.id, userId: user.id, role: "owner" });
   await db.insert(featureFlags).values(
     ["blog", "catalog", "quote", "booking"].map((feature) => ({
       siteId: site.id,
       feature,
       isEnabled: true,
-    }))
+    })),
   );
   console.log("✓ Site créé :", SUBDOMAIN);
 

@@ -9,7 +9,12 @@ import { Button } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 import { type Locale } from "@/i18n/messages";
 import { DEFAULT_THEMES } from "@/lib/themes";
-import { LanguageStep, NameStep, ThemeStep, WizardActions } from "./OnboardingSteps";
+import {
+  LanguageStep,
+  NameStep,
+  ThemeStep,
+  WizardActions,
+} from "./OnboardingSteps";
 import { cn, slugify } from "@/lib/utils";
 
 const STEPS = 3;
@@ -32,8 +37,15 @@ export default function OnboardingWizard() {
     if (!containerRef.current) return;
     const tl = gsap.timeline({ delay: 0.1 });
     gsap.set(containerRef.current, { opacity: 0, y: 30 });
-    tl.to(containerRef.current, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" });
-    return () => { tl.kill(); };
+    tl.to(containerRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: "power3.out",
+    });
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   // Step transition animation
@@ -42,7 +54,7 @@ export default function OnboardingWizard() {
     gsap.fromTo(
       stepContentRef.current,
       { opacity: 0, x: 20 },
-      { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }
+      { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" },
     );
   }, [step]);
 
@@ -56,7 +68,9 @@ export default function OnboardingWizard() {
 
       if (!result.ok) {
         toast.error(
-          result.error === "subdomain_taken" ? t.onboarding.subdomainTaken : t.common.genericError
+          result.error === "subdomain_taken"
+            ? t.onboarding.subdomainTaken
+            : t.common.genericError,
         );
         return;
       }
@@ -84,20 +98,60 @@ export default function OnboardingWizard() {
               key={index}
               className={cn(
                 "h-1 flex-1 rounded-full transition-colors",
-                index < step ? "bg-zinc-900" : "bg-zinc-200"
+                index < step ? "bg-zinc-900" : "bg-zinc-200",
               )}
             />
           ))}
         </div>
 
-        <div ref={stepContentRef} className="mt-8 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(24,24,27,0.45)] sm:p-7">
-          {step === 1 && <NameStep name={name} setName={setName} onContinue={() => setStep(2)} help={t.onboarding.stepNameHelp} placeholder={t.onboarding.namePlaceholder} />}
+        <div
+          ref={stepContentRef}
+          className="mt-8 rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-[0_12px_40px_-28px_rgba(24,24,27,0.45)] sm:p-7"
+        >
+          {step === 1 && (
+            <NameStep
+              name={name}
+              setName={setName}
+              onContinue={() => setStep(2)}
+              help={t.onboarding.stepNameHelp}
+              placeholder={t.onboarding.namePlaceholder}
+            />
+          )}
 
-          {step === 2 && <ThemeStep themeId={themeId} setThemeId={setThemeId} title={t.onboarding.stepTheme} help={t.onboarding.stepThemeHelp} />}
+          {step === 2 && (
+            <ThemeStep
+              themeId={themeId}
+              setThemeId={setThemeId}
+              title={t.onboarding.stepTheme}
+              help={t.onboarding.stepThemeHelp}
+            />
+          )}
 
-          {step === 3 && <LanguageStep language={language} setLanguage={setLanguage} title={t.onboarding.stepLanguage} help={t.onboarding.stepLanguageHelp} name={name} themeId={themeId} themeLabel={t.settings.theme} languageLabel={t.settings.defaultLanguage} />}
+          {step === 3 && (
+            <LanguageStep
+              language={language}
+              setLanguage={setLanguage}
+              title={t.onboarding.stepLanguage}
+              help={t.onboarding.stepLanguageHelp}
+              name={name}
+              themeId={themeId}
+              themeLabel={t.settings.theme}
+              languageLabel={t.settings.defaultLanguage}
+            />
+          )}
 
-          <WizardActions step={step} pending={pending} onBack={() => setStep((value) => Math.max(1, value - 1))} onNext={() => setStep((value) => value + 1)} onSubmit={submit} back={t.common.back} next={t.common.next} create={t.onboarding.createSite} creating={t.onboarding.creating} canContinue={name.trim().length >= 2} />
+          <WizardActions
+            step={step}
+            pending={pending}
+            onBack={() => setStep((value) => Math.max(1, value - 1))}
+            onNext={() => setStep((value) => value + 1)}
+            onSubmit={submit}
+            back={t.common.back}
+            next={t.common.next}
+            create={t.onboarding.createSite}
+            creating={t.onboarding.creating}
+            canContinue={name.trim().length >= 2}
+          />
         </div>
       </div>
     </div>

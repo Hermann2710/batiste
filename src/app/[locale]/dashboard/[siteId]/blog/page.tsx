@@ -44,7 +44,9 @@ export default async function BlogRoute({
   return (
     <BlogManager
       siteId={siteId}
-      languages={(site.supportedLanguages as string[]) ?? [site.defaultLanguage]}
+      languages={
+        (site.supportedLanguages as string[]) ?? [site.defaultLanguage]
+      }
       defaultLanguage={site.defaultLanguage}
       posts={rows.map((post) => ({
         id: post.id,

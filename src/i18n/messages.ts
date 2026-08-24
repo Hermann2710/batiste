@@ -47,21 +47,29 @@ const fr = {
     ctaPrimary: "Créer mon site",
     ctaSecondary: "Découvrir les thèmes",
     featuresTitle: "Tout est déjà prêt",
-    featuresSubtitle: "Les briques essentielles d'un site professionnel, prêtes à l'emploi.",
+    featuresSubtitle:
+      "Les briques essentielles d'un site professionnel, prêtes à l'emploi.",
     f1Title: "Éditeur par blocs",
-    f1Desc: "Hero, cartes, témoignages, formulaires. Assemblez vos pages en glissant des blocs.",
+    f1Desc:
+      "Hero, cartes, témoignages, formulaires. Assemblez vos pages en glissant des blocs.",
     f2Title: "Thèmes cohérents",
-    f2Desc: "Quatre univers graphiques complets. Couleurs, polices et arrondis appliqués partout.",
+    f2Desc:
+      "Quatre univers graphiques complets. Couleurs, polices et arrondis appliqués partout.",
     f3Title: "Multilingue natif",
-    f3Desc: "Vos pages et articles existent en plusieurs langues avec un sélecteur intégré.",
+    f3Desc:
+      "Vos pages et articles existent en plusieurs langues avec un sélecteur intégré.",
     f4Title: "Catalogue flexible",
-    f4Desc: "Produits ou prestations avec attributs personnalisés propres à chaque fiche.",
+    f4Desc:
+      "Produits ou prestations avec attributs personnalisés propres à chaque fiche.",
     f5Title: "Blog éditorial",
-    f5Desc: "Rédigez, catégorisez, publiez. Le même flux brouillon/publié que vos pages.",
+    f5Desc:
+      "Rédigez, catégorisez, publiez. Le même flux brouillon/publié que vos pages.",
     f6Title: "Boîte de réception",
-    f6Desc: "Chaque demande de contact ou de devis arrive dans votre tableau de bord.",
+    f6Desc:
+      "Chaque demande de contact ou de devis arrive dans votre tableau de bord.",
     themesTitle: "Un thème par personnalité",
-    themesSubtitle: "Changez de thème à tout moment, votre contenu reste intact.",
+    themesSubtitle:
+      "Changez de thème à tout moment, votre contenu reste intact.",
     stepsTitle: "Trois étapes, pas une de plus",
     step1: "Créez votre compte",
     step1Desc: "Un email, un mot de passe. C'est tout.",
@@ -70,7 +78,8 @@ const fr = {
     step3: "Publiez en ligne",
     step3Desc: "Votre site est disponible sur votre sous-domaine.",
     finalCta: "Prêt à lancer votre site ?",
-    finalCtaDesc: "Création de compte gratuite, aucune carte bancaire demandée.",
+    finalCtaDesc:
+      "Création de compte gratuite, aucune carte bancaire demandée.",
     footer: "Plateforme de création de sites vitrines.",
   },
   auth: {
@@ -219,7 +228,8 @@ const fr = {
     postTitle: "Titre",
     excerpt: "Résumé",
     content: "Contenu",
-    contentHelp: "Markdown léger accepté : **gras**, *italique*, ## titre, - liste.",
+    contentHelp:
+      "Markdown léger accepté : **gras**, *italique*, ## titre, - liste.",
     category: "Catégorie",
     coverImage: "Image de couverture (URL)",
     noPosts: "Aucun article pour l'instant.",
@@ -440,13 +450,17 @@ const en: typeof fr = {
     ctaPrimary: "Create my site",
     ctaSecondary: "Browse themes",
     featuresTitle: "Everything is ready",
-    featuresSubtitle: "The essential building blocks of a professional website.",
+    featuresSubtitle:
+      "The essential building blocks of a professional website.",
     f1Title: "Block editor",
-    f1Desc: "Hero, cards, testimonials, forms. Assemble pages by stacking blocks.",
+    f1Desc:
+      "Hero, cards, testimonials, forms. Assemble pages by stacking blocks.",
     f2Title: "Consistent themes",
-    f2Desc: "Four complete design systems. Colors, fonts and radii applied everywhere.",
+    f2Desc:
+      "Four complete design systems. Colors, fonts and radii applied everywhere.",
     f3Title: "Multilingual by design",
-    f3Desc: "Pages and posts exist in several languages with a built-in switcher.",
+    f3Desc:
+      "Pages and posts exist in several languages with a built-in switcher.",
     f4Title: "Flexible catalog",
     f4Desc: "Products or services with custom attributes for each item.",
     f5Title: "Editorial blog",
@@ -612,7 +626,8 @@ const en: typeof fr = {
     postTitle: "Title",
     excerpt: "Excerpt",
     content: "Content",
-    contentHelp: "Light markdown supported: **bold**, *italic*, ## heading, - list.",
+    contentHelp:
+      "Light markdown supported: **bold**, *italic*, ## heading, - list.",
     category: "Category",
     coverImage: "Cover image (URL)",
     noPosts: "No post yet.",
@@ -793,11 +808,17 @@ export type Messages = typeof fr;
 export const MESSAGES: Record<Locale, Messages> = { fr, en };
 
 export function getMessages(locale: string): Messages {
-  return MESSAGES[(LOCALES as readonly string[]).includes(locale) ? (locale as Locale) : DEFAULT_LOCALE];
+  return MESSAGES[
+    (LOCALES as readonly string[]).includes(locale)
+      ? (locale as Locale)
+      : DEFAULT_LOCALE
+  ];
 }
 
 export function normalizeLocale(locale: string | undefined): Locale {
-  return (LOCALES as readonly string[]).includes(locale ?? "") ? (locale as Locale) : DEFAULT_LOCALE;
+  return (LOCALES as readonly string[]).includes(locale ?? "")
+    ? (locale as Locale)
+    : DEFAULT_LOCALE;
 }
 
 export const LOCALE_LABELS: Record<Locale, string> = {

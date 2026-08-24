@@ -3,12 +3,24 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { blocks, blogPosts, featureFlags, pages, products, sites, themes } from "@/db/schema";
+import {
+  blocks,
+  blogPosts,
+  featureFlags,
+  pages,
+  products,
+  sites,
+  themes,
+} from "@/db/schema";
 import BlockView, { type PublicProduct } from "@/components/site/BlockView";
 import { themeStyle } from "@/lib/themes";
 import { getMessages, normalizeLocale, type Locale } from "@/i18n/messages";
 import { formatDate, formatPrice } from "@/lib/utils";
-import { isSupportedLocale, publicLanguagePrefix, publicPath } from "@/lib/public-site";
+import {
+  isSupportedLocale,
+  publicLanguagePrefix,
+  publicPath,
+} from "@/lib/public-site";
 
 const ROOT_DOMAINS = ["batiste.app", "lvh.me", "localhost"];
 
@@ -29,7 +41,12 @@ export async function buildSiteMetadata(subdomain: string): Promise<Metadata> {
   return {
     title,
     description: data.site.seoDescription ?? undefined,
-    openGraph: { title, description: data.site.seoDescription ?? undefined, type: "website", siteName: data.site.name },
+    openGraph: {
+      title,
+      description: data.site.seoDescription ?? undefined,
+      type: "website",
+      siteName: data.site.name,
+    },
     twitter: { card: "summary_large_image", title },
   };
 }
@@ -50,24 +67,34 @@ export default async function PublicSite({
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
             {fallback.publicSite.notFound}
           </h1>
-          <p className="mt-2 text-sm text-zinc-500">{fallback.publicSite.notFoundDesc}</p>
+          <p className="mt-2 text-sm text-zinc-500">
+            {fallback.publicSite.notFoundDesc}
+          </p>
         </div>
       </main>
     );
   }
 
   const { site, theme } = data;
-  const defaultLanguage = isSupportedLocale(site.defaultLanguage) ? site.defaultLanguage : "fr";
+  const defaultLanguage = isSupportedLocale(site.defaultLanguage)
+    ? site.defaultLanguage
+    : "fr";
   const supported: Locale[] = Array.from(
     new Set([
       defaultLanguage,
-      ...(((site.supportedLanguages as string[]) ?? []).filter(isSupportedLocale)),
-    ])
+      ...((site.supportedLanguages as string[]) ?? []).filter(
+        isSupportedLocale,
+      ),
+    ]),
   );
 
   const segments = [...slug];
   let language = defaultLanguage;
-  if (segments.length && isSupportedLocale(segments[0]) && supported.includes(segments[0])) {
+  if (
+    segments.length &&
+    isSupportedLocale(segments[0]) &&
+    supported.includes(segments[0])
+  ) {
     language = segments.shift() as Locale;
   }
   const locale = normalizeLocale(language) as Locale;
@@ -75,26 +102,39 @@ export default async function PublicSite({
 
   const host = (await headers()).get("host")?.split(":")[0] ?? "";
   const onSubdomain = ROOT_DOMAINS.some(
-    (root) => host.endsWith(`.${root}`) && host.startsWith(`${subdomain}.`)
+    (root) => host.endsWith(`.${root}`) && host.startsWith(`${subdomain}.`),
   );
   const root = onSubdomain ? "" : `/s/${subdomain}`;
   const prefix = publicLanguagePrefix(root, language, defaultLanguage);
   const href = (path: string) => publicPath(prefix, path);
 
-  const flags = await db.select().from(featureFlags).where(eq(featureFlags.siteId, site.id));
-  const features = Object.fromEntries(flags.map((f) => [f.feature, Boolean(f.isEnabled)]));
+  const flags = await db
+    .select()
+    .from(featureFlags)
+    .where(eq(featureFlags.siteId, site.id));
+  const features = Object.fromEntries(
+    flags.map((f) => [f.feature, Boolean(f.isEnabled)]),
+  );
 
   const navPages = await db
     .select()
     .from(pages)
-    .where(and(eq(pages.siteId, site.id), eq(pages.status, "published"), eq(pages.language, language)))
+    .where(
+      and(
+        eq(pages.siteId, site.id),
+        eq(pages.status, "published"),
+        eq(pages.language, language),
+      ),
+    )
     .orderBy(asc(pages.sortOrder));
 
   const productRows = features.catalog
     ? await db
         .select()
         .from(products)
-        .where(and(eq(products.siteId, site.id), eq(products.status, "published")))
+        .where(
+          and(eq(products.siteId, site.id), eq(products.status, "published")),
+        )
         .orderBy(asc(products.sortOrder))
     : [];
 
@@ -116,15 +156,19 @@ export default async function PublicSite({
 
   const currentPage =
     !isBlog && !isCatalog && !blogSlug
-      ? navPages.find((p) => p.slug === route) ??
-        (route === "" ? navPages.find((p) => p.isHomepage) ?? navPages[0] : undefined)
+      ? (navPages.find((p) => p.slug === route) ??
+        (route === ""
+          ? (navPages.find((p) => p.isHomepage) ?? navPages[0])
+          : undefined))
       : undefined;
 
   const pageBlocks = currentPage
     ? await db
         .select()
         .from(blocks)
-        .where(and(eq(blocks.pageId, currentPage.id), eq(blocks.isVisible, true)))
+        .where(
+          and(eq(blocks.pageId, currentPage.id), eq(blocks.isVisible, true)),
+        )
         .orderBy(asc(blocks.position))
     : [];
 
@@ -134,12 +178,18 @@ export default async function PublicSite({
           .select()
           .from(blogPosts)
           .where(
-            and(eq(blogPosts.siteId, site.id), eq(blogPosts.status, "published"), eq(blogPosts.language, language))
+            and(
+              eq(blogPosts.siteId, site.id),
+              eq(blogPosts.status, "published"),
+              eq(blogPosts.language, language),
+            ),
           )
           .orderBy(desc(blogPosts.publishedAt))
       : [];
 
-  const singlePost = blogSlug ? posts.find((p) => p.slug === blogSlug) : undefined;
+  const singlePost = blogSlug
+    ? posts.find((p) => p.slug === blogSlug)
+    : undefined;
 
   const languageTargets = await Promise.all(
     supported.map(async (code) => {
@@ -156,8 +206,8 @@ export default async function PublicSite({
               eq(blogPosts.siteId, site.id),
               eq(blogPosts.slug, segments[1]),
               eq(blogPosts.language, code),
-              eq(blogPosts.status, "published")
-            )
+              eq(blogPosts.status, "published"),
+            ),
           )
           .limit(1);
         return targetPost[0]
@@ -172,16 +222,18 @@ export default async function PublicSite({
             eq(pages.siteId, site.id),
             eq(pages.slug, route),
             eq(pages.language, code),
-            eq(pages.status, "published")
-          )
+            eq(pages.status, "published"),
+          ),
         )
         .limit(1);
-      return targetPage[0] ? publicPath(targetPrefix, targetPage[0].slug) : publicPath(targetPrefix);
-    })
+      return targetPage[0]
+        ? publicPath(targetPrefix, targetPage[0].slug)
+        : publicPath(targetPrefix);
+    }),
   );
 
   const categories = Array.from(
-    new Set(publicProducts.map((p) => p.category).filter(Boolean))
+    new Set(publicProducts.map((p) => p.category).filter(Boolean)),
   ) as string[];
 
   return (
@@ -192,7 +244,10 @@ export default async function PublicSite({
         style={{ borderColor: "var(--c-border)" }}
       >
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-6 py-4">
-          <Link href={href("")} className="site-heading text-[17px] font-semibold">
+          <Link
+            href={href("")}
+            className="site-heading text-[17px] font-semibold"
+          >
             {site.name}
           </Link>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[13.5px]">
@@ -201,7 +256,12 @@ export default async function PublicSite({
                 key={page.id}
                 href={href(page.slug)}
                 className="transition hover:opacity-70"
-                style={{ color: currentPage?.id === page.id ? "var(--c-primary)" : "var(--c-muted)" }}
+                style={{
+                  color:
+                    currentPage?.id === page.id
+                      ? "var(--c-primary)"
+                      : "var(--c-muted)",
+                }}
               >
                 {page.title}
               </Link>
@@ -210,7 +270,9 @@ export default async function PublicSite({
               <Link
                 href={href("blog")}
                 className="transition hover:opacity-70"
-                style={{ color: isBlog ? "var(--c-primary)" : "var(--c-muted)" }}
+                style={{
+                  color: isBlog ? "var(--c-primary)" : "var(--c-muted)",
+                }}
               >
                 Blog
               </Link>
@@ -219,7 +281,9 @@ export default async function PublicSite({
               <Link
                 href={href("catalog")}
                 className="transition hover:opacity-70"
-                style={{ color: isCatalog ? "var(--c-primary)" : "var(--c-muted)" }}
+                style={{
+                  color: isCatalog ? "var(--c-primary)" : "var(--c-muted)",
+                }}
               >
                 {t.catalog.title}
               </Link>
@@ -235,8 +299,12 @@ export default async function PublicSite({
                     href={target || "/"}
                     className="rounded-md px-2 py-1 uppercase transition"
                     style={{
-                      background: code === language ? "var(--c-primary)" : "transparent",
-                      color: code === language ? "var(--c-on-primary)" : "var(--c-muted)",
+                      background:
+                        code === language ? "var(--c-primary)" : "transparent",
+                      color:
+                        code === language
+                          ? "var(--c-on-primary)"
+                          : "var(--c-muted)",
                     }}
                   >
                     {code}
@@ -264,7 +332,11 @@ export default async function PublicSite({
             </p>
             {singlePost.coverImage && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={singlePost.coverImage} alt="" className="mt-8 w-full rounded-xl object-cover" />
+              <img
+                src={singlePost.coverImage}
+                alt=""
+                className="mt-8 w-full rounded-xl object-cover"
+              />
             )}
             <div className="mt-8 space-y-4 text-[15.5px] leading-[1.8]">
               {singlePost.content
@@ -283,16 +355,26 @@ export default async function PublicSite({
             ) : (
               <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {posts.map((post) => (
-                  <Link key={post.id} href={href(`blog/${post.slug}`)} className="site-card overflow-hidden">
+                  <Link
+                    key={post.id}
+                    href={href(`blog/${post.slug}`)}
+                    className="site-card overflow-hidden"
+                  >
                     {post.coverImage && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={post.coverImage} alt="" className="h-40 w-full object-cover" />
+                      <img
+                        src={post.coverImage}
+                        alt=""
+                        className="h-40 w-full object-cover"
+                      />
                     )}
                     <div className="p-5">
                       <p className="site-muted text-[12px]">
                         {formatDate(post.publishedAt, `${locale}-FR`)}
                       </p>
-                      <h2 className="site-heading mt-1.5 text-[17px] font-semibold">{post.title}</h2>
+                      <h2 className="site-heading mt-1.5 text-[17px] font-semibold">
+                        {post.title}
+                      </h2>
                       {post.excerpt && (
                         <p className="site-muted mt-2 line-clamp-3 text-[13.5px] leading-relaxed">
                           {post.excerpt}
@@ -306,34 +388,57 @@ export default async function PublicSite({
           </section>
         ) : isCatalog ? (
           <section className="mx-auto max-w-5xl px-6 py-16">
-            <h1 className="site-heading text-[32px] font-semibold">{t.catalog.title}</h1>
+            <h1 className="site-heading text-[32px] font-semibold">
+              {t.catalog.title}
+            </h1>
             {categories.length > 0 && (
               <div className="mt-6 flex flex-wrap items-center gap-2 text-[13px]">
                 <span className="site-muted">{t.publicSite.filters} :</span>
                 {categories.map((cat) => (
-                  <span key={cat} className="rounded-full px-3 py-1" style={{ background: "var(--c-surface)" }}>
+                  <span
+                    key={cat}
+                    className="rounded-full px-3 py-1"
+                    style={{ background: "var(--c-surface)" }}
+                  >
                     {cat}
                   </span>
                 ))}
               </div>
             )}
             {publicProducts.length === 0 ? (
-              <p className="site-muted mt-8 text-sm">{t.publicSite.noProducts}</p>
+              <p className="site-muted mt-8 text-sm">
+                {t.publicSite.noProducts}
+              </p>
             ) : (
               <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {publicProducts.map((product) => {
-                  const image = Array.isArray(product.images) ? String(product.images[0] ?? "") : "";
-                  const attributes = (product.customAttributes as Record<string, string>) ?? {};
+                  const image = Array.isArray(product.images)
+                    ? String(product.images[0] ?? "")
+                    : "";
+                  const attributes =
+                    (product.customAttributes as Record<string, string>) ?? {};
                   return (
-                    <article key={product.id} className="site-card overflow-hidden">
+                    <article
+                      key={product.id}
+                      className="site-card overflow-hidden"
+                    >
                       {image ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={image} alt={product.name} className="h-44 w-full object-cover" />
+                        <img
+                          src={image}
+                          alt={product.name}
+                          className="h-44 w-full object-cover"
+                        />
                       ) : (
-                        <div className="h-44 w-full" style={{ background: "var(--c-surface)" }} />
+                        <div
+                          className="h-44 w-full"
+                          style={{ background: "var(--c-surface)" }}
+                        />
                       )}
                       <div className="p-5">
-                        <h2 className="site-heading text-[16px] font-semibold">{product.name}</h2>
+                        <h2 className="site-heading text-[16px] font-semibold">
+                          {product.name}
+                        </h2>
                         {product.description && (
                           <p className="site-muted mt-1.5 text-[13.5px] leading-relaxed">
                             {product.description}
@@ -342,7 +447,10 @@ export default async function PublicSite({
                         {Object.keys(attributes).length > 0 && (
                           <dl className="mt-3 space-y-1 text-[12.5px]">
                             {Object.entries(attributes).map(([key, value]) => (
-                              <div key={key} className="flex justify-between gap-3">
+                              <div
+                                key={key}
+                                className="flex justify-between gap-3"
+                              >
                                 <dt className="site-muted">{key}</dt>
                                 <dd>{String(value)}</dd>
                               </div>
@@ -351,7 +459,11 @@ export default async function PublicSite({
                         )}
                         {product.price !== null && (
                           <p className="mt-3 text-[15px] font-semibold">
-                            {formatPrice(product.price, product.currency ?? "EUR", `${locale}-FR`)}
+                            {formatPrice(
+                              product.price,
+                              product.currency ?? "EUR",
+                              `${locale}-FR`,
+                            )}
                           </p>
                         )}
                       </div>
@@ -364,7 +476,9 @@ export default async function PublicSite({
         ) : currentPage ? (
           pageBlocks.length === 0 ? (
             <section className="mx-auto max-w-3xl px-6 py-24 text-center">
-              <h1 className="site-heading text-[30px] font-semibold">{currentPage.title}</h1>
+              <h1 className="site-heading text-[30px] font-semibold">
+                {currentPage.title}
+              </h1>
             </section>
           ) : (
             pageBlocks.map((block) => (
@@ -384,8 +498,13 @@ export default async function PublicSite({
           )
         ) : (
           <section className="mx-auto max-w-3xl px-6 py-24 text-center">
-            <h1 className="site-heading text-[26px] font-semibold">{t.publicSite.pageNotFound}</h1>
-            <Link href={href("")} className="site-muted mt-3 inline-block text-sm underline">
+            <h1 className="site-heading text-[26px] font-semibold">
+              {t.publicSite.pageNotFound}
+            </h1>
+            <Link
+              href={href("")}
+              className="site-muted mt-3 inline-block text-sm underline"
+            >
               {site.name}
             </Link>
           </section>
@@ -398,7 +517,8 @@ export default async function PublicSite({
         style={{ borderColor: "var(--c-border)", color: "var(--c-muted)" }}
       >
         <p>
-          &copy; {new Date().getFullYear()} {site.name} &ndash; {t.publicSite.poweredBy} Batiste
+          &copy; {new Date().getFullYear()} {site.name} &ndash;{" "}
+          {t.publicSite.poweredBy} Batiste
         </p>
       </footer>
     </div>

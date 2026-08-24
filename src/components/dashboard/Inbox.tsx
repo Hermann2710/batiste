@@ -29,7 +29,9 @@ export default function Inbox({ submissions }: { submissions: InboxItem[] }) {
     archived: t.inbox.statusArchived,
   };
 
-  const visible = submissions.filter((item) => filter === "all" || item.status === filter);
+  const visible = submissions.filter(
+    (item) => filter === "all" || item.status === filter,
+  );
 
   const update = (id: string, status: "new" | "read" | "archived") =>
     startTransition(async () => {
@@ -49,7 +51,9 @@ export default function Inbox({ submissions }: { submissions: InboxItem[] }) {
             onClick={() => setFilter(value)}
             className={cn(
               "rounded-lg px-3 py-1.5 text-[13px] font-medium transition",
-              filter === value ? "bg-zinc-900 text-white" : "text-zinc-500 hover:text-zinc-900"
+              filter === value
+                ? "bg-zinc-900 text-white"
+                : "text-zinc-500 hover:text-zinc-900",
             )}
           >
             {labels[value]}
@@ -79,18 +83,19 @@ export default function Inbox({ submissions }: { submissions: InboxItem[] }) {
                       item.status === "new"
                         ? "warning"
                         : item.status === "read"
-                        ? "success"
-                        : "neutral"
+                          ? "success"
+                          : "neutral"
                     }
                   >
                     {item.status === "new"
                       ? t.inbox.statusNew
                       : item.status === "read"
-                      ? t.inbox.statusRead
-                      : t.inbox.statusArchived}
+                        ? t.inbox.statusRead
+                        : t.inbox.statusArchived}
                   </Badge>
                   <span className="text-[12px] text-zinc-400">
-                    {t.inbox.receivedOn} {formatDateTime(item.createdAt, `${locale}-FR`)}
+                    {t.inbox.receivedOn}{" "}
+                    {formatDateTime(item.createdAt, `${locale}-FR`)}
                   </span>
 
                   <div className="ml-auto flex gap-2">
@@ -129,8 +134,12 @@ export default function Inbox({ submissions }: { submissions: InboxItem[] }) {
                 <dl className="mt-3 grid gap-x-6 gap-y-1.5 rounded-xl bg-zinc-50 px-4 py-3 text-[13px] sm:grid-cols-2">
                   {Object.entries(payload).map(([key, value]) => (
                     <div key={key} className="flex gap-2">
-                      <dt className="shrink-0 font-medium text-zinc-500">{key}</dt>
-                      <dd className="min-w-0 wrap-break-word text-zinc-900">{String(value)}</dd>
+                      <dt className="shrink-0 font-medium text-zinc-500">
+                        {key}
+                      </dt>
+                      <dd className="min-w-0 wrap-break-word text-zinc-900">
+                        {String(value)}
+                      </dd>
                     </div>
                   ))}
                 </dl>

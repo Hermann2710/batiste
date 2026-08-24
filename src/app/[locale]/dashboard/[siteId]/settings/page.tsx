@@ -9,7 +9,10 @@ export default async function SettingsRoute({
 }) {
   const { locale: rawLocale, siteId } = await params;
   const locale = normalizeLocale(rawLocale);
-  const { site, features, role } = await requireSiteAccess(siteId, locale, ["owner", "admin"]);
+  const { site, features, role } = await requireSiteAccess(siteId, locale, [
+    "owner",
+    "admin",
+  ]);
 
   return (
     <SettingsForm
@@ -19,7 +22,9 @@ export default async function SettingsRoute({
         subdomain: site.subdomain,
         themeId: site.themeId,
         defaultLanguage: site.defaultLanguage,
-        supportedLanguages: (site.supportedLanguages as string[]) ?? [site.defaultLanguage],
+        supportedLanguages: (site.supportedLanguages as string[]) ?? [
+          site.defaultLanguage,
+        ],
         seoTitle: site.seoTitle,
         seoDescription: site.seoDescription,
         status: site.status,

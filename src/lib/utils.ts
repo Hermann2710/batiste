@@ -15,21 +15,30 @@ export function slugify(value: string, maxLength = 50): string {
     .slice(0, maxLength);
 }
 
-export function formatPrice(cents: number | null, currency = "EUR", locale = "fr-FR") {
+export function formatPrice(
+  cents: number | null,
+  currency = "EUR",
+  locale = "fr-FR",
+) {
   if (cents === null || cents === undefined) return null;
-  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(cents / 100);
+  return new Intl.NumberFormat(locale, { style: "currency", currency }).format(
+    cents / 100,
+  );
 }
 
 export function formatDate(date: Date | string | null, locale = "fr-FR") {
   if (!date) return "";
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(date));
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(
+    new Date(date),
+  );
 }
 
 export function formatDateTime(date: Date | string | null, locale = "fr-FR") {
   if (!date) return "";
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(date)
-  );
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(date));
 }
 
 /** Very small in-memory sliding window rate limiter. */

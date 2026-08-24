@@ -1,12 +1,179 @@
 "use client";
 
-import { Button, Field, IconButton, ImageUpload, Input, Modal, Textarea } from "@/components/ui";
+import {
+  Button,
+  Field,
+  IconButton,
+  ImageUpload,
+  Input,
+  Modal,
+  Textarea,
+} from "@/components/ui";
 import type { Messages } from "@/i18n/messages";
 
-export interface ProductDraft { productId?: string; name: string; description: string; price: string; category: string; imageUrl: string; attributes: { key: string; value: string }[]; status: "draft" | "published"; }
+export interface ProductDraft {
+  productId?: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  imageUrl: string;
+  attributes: { key: string; value: string }[];
+  status: "draft" | "published";
+}
 
-export default function ProductEditor({ open, draft, pending, siteId, t, onClose, onChange, onSave }: { open: boolean; draft: ProductDraft; pending: boolean; siteId: string; t: Messages; onClose: () => void; onChange: (draft: ProductDraft) => void; onSave: () => void }) {
-  const update = (values: Partial<ProductDraft>) => onChange({ ...draft, ...values });
-  const updateAttribute = (index: number, values: Partial<ProductDraft["attributes"][number]>) => update({ attributes: draft.attributes.map((attribute, current) => current === index ? { ...attribute, ...values } : attribute) });
-  return <Modal open={open} onClose={onClose} title={draft.productId ? t.catalog.editProduct : t.catalog.newProduct} size="lg" footer={<><Button variant="ghost" onClick={onClose}>{t.common.cancel}</Button><Button loading={pending} onClick={onSave} disabled={!draft.name.trim()}>{t.common.save}</Button></>}><div className="space-y-4"><div className="grid gap-4 sm:grid-cols-2"><Field label={t.catalog.name} required><Input value={draft.name} onChange={(event) => update({ name: event.target.value })} autoFocus /></Field><Field label={t.catalog.category}><Input value={draft.category} onChange={(event) => update({ category: event.target.value })} /></Field><Field label={`${t.catalog.price} (€)`}><Input type="number" step="0.01" value={draft.price} onChange={(event) => update({ price: event.target.value })} /></Field><Field label={t.catalog.imageUrl}><ImageUpload siteId={siteId} value={draft.imageUrl} onChange={(imageUrl) => update({ imageUrl })} /></Field></div><Field label={t.catalog.description}><Textarea rows={3} value={draft.description} onChange={(event) => update({ description: event.target.value })} /></Field><div className="rounded-xl border border-zinc-200 p-3"><div className="mb-2 flex items-center justify-between"><span className="text-[13px] font-medium text-zinc-700">{t.catalog.customAttributes}</span><Button size="sm" variant="secondary" onClick={() => update({ attributes: [...draft.attributes, { key: "", value: "" }] })}>+ {t.catalog.addAttribute}</Button></div><div className="space-y-2">{draft.attributes.map((attribute, index) => <div key={index} className="flex gap-2"><Input placeholder={t.catalog.attributeKey} value={attribute.key} onChange={(event) => updateAttribute(index, { key: event.target.value })} /><Input placeholder={t.catalog.attributeValue} value={attribute.value} onChange={(event) => updateAttribute(index, { value: event.target.value })} /><IconButton label={t.common.delete} onClick={() => update({ attributes: draft.attributes.filter((_, current) => current !== index) })}>×</IconButton></div>)}</div></div><div className="flex items-center gap-2">{(["draft", "published"] as const).map((status) => <button key={status} type="button" onClick={() => update({ status })} className={`rounded-xl border-2 px-4 py-2 text-[13px] font-medium transition ${draft.status === status ? "border-zinc-900 bg-zinc-50 text-zinc-900" : "border-zinc-200 text-zinc-500"}`}>{status === "draft" ? t.common.draft : t.common.published}</button>)}</div></div></Modal>;
+export default function ProductEditor({
+  open,
+  draft,
+  pending,
+  siteId,
+  t,
+  onClose,
+  onChange,
+  onSave,
+}: {
+  open: boolean;
+  draft: ProductDraft;
+  pending: boolean;
+  siteId: string;
+  t: Messages;
+  onClose: () => void;
+  onChange: (draft: ProductDraft) => void;
+  onSave: () => void;
+}) {
+  const update = (values: Partial<ProductDraft>) =>
+    onChange({ ...draft, ...values });
+  const updateAttribute = (
+    index: number,
+    values: Partial<ProductDraft["attributes"][number]>,
+  ) =>
+    update({
+      attributes: draft.attributes.map((attribute, current) =>
+        current === index ? { ...attribute, ...values } : attribute,
+      ),
+    });
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={draft.productId ? t.catalog.editProduct : t.catalog.newProduct}
+      size="lg"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            {t.common.cancel}
+          </Button>
+          <Button
+            loading={pending}
+            onClick={onSave}
+            disabled={!draft.name.trim()}
+          >
+            {t.common.save}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t.catalog.name} required>
+            <Input
+              value={draft.name}
+              onChange={(event) => update({ name: event.target.value })}
+              autoFocus
+            />
+          </Field>
+          <Field label={t.catalog.category}>
+            <Input
+              value={draft.category}
+              onChange={(event) => update({ category: event.target.value })}
+            />
+          </Field>
+          <Field label={`${t.catalog.price} (€)`}>
+            <Input
+              type="number"
+              step="0.01"
+              value={draft.price}
+              onChange={(event) => update({ price: event.target.value })}
+            />
+          </Field>
+          <Field label={t.catalog.imageUrl}>
+            <ImageUpload
+              siteId={siteId}
+              value={draft.imageUrl}
+              onChange={(imageUrl) => update({ imageUrl })}
+            />
+          </Field>
+        </div>
+        <Field label={t.catalog.description}>
+          <Textarea
+            rows={3}
+            value={draft.description}
+            onChange={(event) => update({ description: event.target.value })}
+          />
+        </Field>
+        <div className="rounded-xl border border-zinc-200 p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[13px] font-medium text-zinc-700">
+              {t.catalog.customAttributes}
+            </span>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() =>
+                update({
+                  attributes: [...draft.attributes, { key: "", value: "" }],
+                })
+              }
+            >
+              + {t.catalog.addAttribute}
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {draft.attributes.map((attribute, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  placeholder={t.catalog.attributeKey}
+                  value={attribute.key}
+                  onChange={(event) =>
+                    updateAttribute(index, { key: event.target.value })
+                  }
+                />
+                <Input
+                  placeholder={t.catalog.attributeValue}
+                  value={attribute.value}
+                  onChange={(event) =>
+                    updateAttribute(index, { value: event.target.value })
+                  }
+                />
+                <IconButton
+                  label={t.common.delete}
+                  onClick={() =>
+                    update({
+                      attributes: draft.attributes.filter(
+                        (_, current) => current !== index,
+                      ),
+                    })
+                  }
+                >
+                  ×
+                </IconButton>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {(["draft", "published"] as const).map((status) => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => update({ status })}
+              className={`rounded-xl border-2 px-4 py-2 text-[13px] font-medium transition ${draft.status === status ? "border-zinc-900 bg-zinc-50 text-zinc-900" : "border-zinc-200 text-zinc-500"}`}
+            >
+              {status === "draft" ? t.common.draft : t.common.published}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
 }

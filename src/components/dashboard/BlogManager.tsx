@@ -3,11 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { upsertPostAction } from "@/actions/catalog";
-import {
-  Button,
-  EmptyState,
-  PageHeader,
-} from "@/components/ui";
+import { Button, EmptyState, PageHeader } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/messages";
 import BlogPostList from "./BlogPostList";
@@ -116,7 +112,17 @@ export default function BlogManager({
         <BlogPostList posts={posts} locale={locale} t={t} onEdit={openEdit} />
       )}
 
-      <BlogPostEditor open={open} draft={draft} languages={languages} pending={pending} siteId={siteId} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
+      <BlogPostEditor
+        open={open}
+        draft={draft}
+        languages={languages}
+        pending={pending}
+        siteId={siteId}
+        t={t}
+        onClose={() => setOpen(false)}
+        onChange={setDraft}
+        onSave={save}
+      />
     </div>
   );
 }

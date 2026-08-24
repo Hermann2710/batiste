@@ -3,7 +3,9 @@ import { db } from "@/db";
 import { blocks, pages, products } from "@/db/schema";
 import { requireSiteAccess } from "@/lib/guards";
 import { normalizeLocale } from "@/i18n/messages";
-import PageBuilder, { type BuilderPage } from "@/components/dashboard/PageBuilder";
+import PageBuilder, {
+  type BuilderPage,
+} from "@/components/dashboard/PageBuilder";
 
 export default async function PagesRoute({
   params,
@@ -51,7 +53,9 @@ export default async function PagesRoute({
     ? await db
         .select()
         .from(products)
-        .where(and(eq(products.siteId, siteId), eq(products.status, "published")))
+        .where(
+          and(eq(products.siteId, siteId), eq(products.status, "published")),
+        )
         .orderBy(asc(products.sortOrder))
     : [];
 
@@ -59,9 +63,15 @@ export default async function PagesRoute({
     <PageBuilder
       siteId={siteId}
       pages={builderPages}
-      languages={(site.supportedLanguages as string[]) ?? [site.defaultLanguage]}
+      languages={
+        (site.supportedLanguages as string[]) ?? [site.defaultLanguage]
+      }
       defaultLanguage={site.defaultLanguage}
-      theme={{ colors: theme.colors, fonts: theme.fonts, borderRadius: theme.borderRadius }}
+      theme={{
+        colors: theme.colors,
+        fonts: theme.fonts,
+        borderRadius: theme.borderRadius,
+      }}
       products={productRows.map((product) => ({
         id: product.id,
         name: product.name,

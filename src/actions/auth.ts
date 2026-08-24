@@ -12,7 +12,12 @@ import { auth, signIn as authSignIn, signOut as authSignOut } from "@/auth";
 import { AuthError } from "next-auth";
 
 export interface AuthState {
-  error?: "invalid_credentials" | "email_taken" | "rate_limited" | "validation" | "unknown";
+  error?:
+    | "invalid_credentials"
+    | "email_taken"
+    | "rate_limited"
+    | "validation"
+    | "unknown";
 }
 
 export interface ProfileState {
@@ -50,14 +55,17 @@ async function clientKey(prefix: string) {
 export async function signInAction(
   rawLocale: string,
   _prev: AuthState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthState> {
   const locale = normalizeLocale(rawLocale);
 
-  if (!rateLimit(await clientKey("signin"), 8, 60_000)) return { error: "rate_limited" };
+  if (!rateLimit(await clientKey("signin"), 8, 60_000))
+    return { error: "rate_limited" };
 
   const parsed = credentialsSchema.safeParse({
-    email: String(formData.get("email") ?? "").toLowerCase().trim(),
+    email: String(formData.get("email") ?? "")
+      .toLowerCase()
+      .trim(),
     password: String(formData.get("password") ?? ""),
   });
   if (!parsed.success) return { error: "validation" };
@@ -78,14 +86,17 @@ export async function signInAction(
 export async function signUpAction(
   rawLocale: string,
   _prev: AuthState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthState> {
   const locale = normalizeLocale(rawLocale);
 
-  if (!rateLimit(await clientKey("signup"), 5, 60_000)) return { error: "rate_limited" };
+  if (!rateLimit(await clientKey("signup"), 5, 60_000))
+    return { error: "rate_limited" };
 
   const parsed = registerSchema.safeParse({
-    email: String(formData.get("email") ?? "").toLowerCase().trim(),
+    email: String(formData.get("email") ?? "")
+      .toLowerCase()
+      .trim(),
     password: String(formData.get("password") ?? ""),
     firstName: String(formData.get("firstName") ?? "").trim() || undefined,
     lastName: String(formData.get("lastName") ?? "").trim() || undefined,
@@ -105,7 +116,10 @@ export async function signUpAction(
     .values({
       email: parsed.data.email,
       passwordHash,
-      name: [parsed.data.firstName, parsed.data.lastName].filter(Boolean).join(" ") || null,
+      name:
+        [parsed.data.firstName, parsed.data.lastName]
+          .filter(Boolean)
+          .join(" ") || null,
       firstName: parsed.data.firstName ?? null,
       lastName: parsed.data.lastName ?? null,
     })
@@ -124,7 +138,9 @@ export async function signOutAction(rawLocale: string) {
   await authSignOut({ redirectTo: `/${locale}` });
 }
 
-export async function updateProfileAction(formData: FormData): Promise<ProfileState> {
+export async function updateProfileAction(
+  formData: FormData,
+): Promise<ProfileState> {
   const session = await auth();
   if (!session?.user?.id) return { error: "unauthorized" };
   const parsed = profileSchema.safeParse({
@@ -134,21 +150,29 @@ export async function updateProfileAction(formData: FormData): Promise<ProfileSt
   });
   if (!parsed.success) return { error: "validation" };
   try {
-    await db.update(users).set({
-      firstName: parsed.data.firstName || null,
-      lastName: parsed.data.lastName || null,
-      avatarUrl: parsed.data.avatarUrl || null,
-      name: [parsed.data.firstName, parsed.data.lastName].filter(Boolean).join(" ") || null,
-      image: parsed.data.avatarUrl || null,
-      updatedAt: new Date(),
-    }).where(eq(users.id, session.user.id));
+    await db
+      .update(users)
+      .set({
+        firstName: parsed.data.firstName || null,
+        lastName: parsed.data.lastName || null,
+        avatarUrl: parsed.data.avatarUrl || null,
+        name:
+          [parsed.data.firstName, parsed.data.lastName]
+            .filter(Boolean)
+            .join(" ") || null,
+        image: parsed.data.avatarUrl || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, session.user.id));
     return { ok: true };
   } catch {
     return { error: "unknown" };
   }
 }
 
-export async function changePasswordAction(formData: FormData): Promise<ProfileState> {
+export async function changePasswordAction(
+  formData: FormData,
+): Promise<ProfileState> {
   const session = await auth();
   if (!session?.user?.id) return { error: "unauthorized" };
 
@@ -158,16 +182,26 @@ export async function changePasswordAction(formData: FormData): Promise<ProfileS
   });
   if (!parsed.success) return { error: "validation" };
 
-  const rows = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+  const rows = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
   const user = rows[0];
   if (!user?.passwordHash) return { error: "unknown" };
 
-  const valid = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
+  const valid = await bcrypt.compare(
+    parsed.data.currentPassword,
+    user.passwordHash,
+  );
   if (!valid) return { error: "invalid_credentials" as ProfileState["error"] };
 
   const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
   try {
-    await db.update(users).set({ passwordHash: newHash, updatedAt: new Date() }).where(eq(users.id, session.user.id));
+    await db
+      .update(users)
+      .set({ passwordHash: newHash, updatedAt: new Date() })
+      .where(eq(users.id, session.user.id));
     return { ok: true };
   } catch {
     return { error: "unknown" };

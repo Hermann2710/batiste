@@ -1,11 +1,111 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export function Spinner({ className }: { className?: string }) { return <span className={cn("inline-block size-5 animate-spin rounded-full border-2 border-current border-t-transparent", className)} />; }
-export function Badge({ tone = "neutral", children, className }: { tone?: "neutral" | "success" | "warning" | "info" | "danger"; children: ReactNode; className?: string }) {
-  const tones = { neutral: "bg-zinc-100 text-zinc-600 ring-zinc-200", success: "bg-emerald-50 text-emerald-700 ring-emerald-200", warning: "bg-amber-50 text-amber-700 ring-amber-200", info: "bg-indigo-50 text-indigo-700 ring-indigo-200", danger: "bg-red-50 text-red-700 ring-red-200" };
-  return <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset", tones[tone], className)}>{children}</span>;
+export function Spinner({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-block size-5 animate-spin rounded-full border-2 border-current border-t-transparent",
+        className,
+      )}
+    />
+  );
 }
-export function EmptyState({ icon = "◇", title, description, action }: { icon?: ReactNode; title: string; description?: string; action?: ReactNode }) { return <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 px-6 py-14 text-center"><div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-white text-lg text-zinc-400 ring-1 ring-zinc-200">{icon}</div><p className="text-sm font-medium text-zinc-900">{title}</p>{description && <p className="mt-1 max-w-sm text-[13px] text-zinc-500">{description}</p>}{action && <div className="mt-5">{action}</div>}</div>; }
-export function PageHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) { return <div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-[22px] font-semibold tracking-tight text-zinc-900">{title}</h1>{description && <p className="mt-1 text-sm text-zinc-500">{description}</p>}</div>{action}</div>; }
-export function StatTile({ label, value, tone }: { label: string; value: ReactNode; tone?: string }) { return <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-4"><p className="text-[13px] text-zinc-500">{label}</p><p className={cn("mt-1 text-2xl font-semibold tracking-tight text-zinc-900", tone)}>{value}</p></div>; }
+export function Badge({
+  tone = "neutral",
+  children,
+  className,
+}: {
+  tone?: "neutral" | "success" | "warning" | "info" | "danger";
+  children: ReactNode;
+  className?: string;
+}) {
+  const tones = {
+    neutral: "bg-zinc-100 text-zinc-600 ring-zinc-200",
+    success: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    warning: "bg-amber-50 text-amber-700 ring-amber-200",
+    info: "bg-indigo-50 text-indigo-700 ring-indigo-200",
+    danger: "bg-red-50 text-red-700 ring-red-200",
+  };
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset",
+        tones[tone],
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+export function EmptyState({
+  icon = "◇",
+  title,
+  description,
+  action,
+}: {
+  icon?: ReactNode;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 px-6 py-14 text-center">
+      <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-white text-lg text-zinc-400 ring-1 ring-zinc-200">
+        {icon}
+      </div>
+      <p className="text-sm font-medium text-zinc-900">{title}</p>
+      {description && (
+        <p className="mt-1 max-w-sm text-[13px] text-zinc-500">{description}</p>
+      )}
+      {action && <div className="mt-5">{action}</div>}
+    </div>
+  );
+}
+export function PageHeader({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 className="text-[22px] font-semibold tracking-tight text-zinc-900">
+          {title}
+        </h1>
+        {description && (
+          <p className="mt-1 text-sm text-zinc-500">{description}</p>
+        )}
+      </div>
+      {action}
+    </div>
+  );
+}
+export function StatTile({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: ReactNode;
+  tone?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-zinc-200 bg-white px-5 py-4">
+      <p className="text-[13px] text-zinc-500">{label}</p>
+      <p
+        className={cn(
+          "mt-1 text-2xl font-semibold tracking-tight text-zinc-900",
+          tone,
+        )}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}

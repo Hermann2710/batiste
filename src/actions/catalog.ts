@@ -5,7 +5,13 @@ import { revalidatePath } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { db } from "@/db";
-import { blogPosts, featureFlags, formSubmissions, products, sites } from "@/db/schema";
+import {
+  blogPosts,
+  featureFlags,
+  formSubmissions,
+  products,
+  sites,
+} from "@/db/schema";
 import { assertSiteAccess } from "@/lib/guards";
 import { rateLimit, slugify } from "@/lib/utils";
 import { LOCALES } from "@/i18n/messages";
@@ -36,7 +42,7 @@ const productSchema = z.object({
 });
 
 export async function upsertProductAction(
-  input: z.infer<typeof productSchema>
+  input: z.infer<typeof productSchema>,
 ): Promise<ActionResult> {
   const parsed = productSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
@@ -61,10 +67,18 @@ export async function upsertProductAction(
       const existing = await db
         .select({ id: products.id })
         .from(products)
-        .where(and(eq(products.id, data.productId), eq(products.siteId, data.siteId)))
+        .where(
+          and(
+            eq(products.id, data.productId),
+            eq(products.siteId, data.siteId),
+          ),
+        )
         .limit(1);
       if (!existing.length) return fail("not_found");
-      await db.update(products).set(values).where(eq(products.id, data.productId));
+      await db
+        .update(products)
+        .set(values)
+        .where(eq(products.id, data.productId));
     } else {
       await db.insert(products).values(values);
     }
@@ -76,9 +90,15 @@ export async function upsertProductAction(
   }
 }
 
-export async function deleteProductAction(productId: string): Promise<ActionResult> {
+export async function deleteProductAction(
+  productId: string,
+): Promise<ActionResult> {
   try {
-    const rows = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+    const rows = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, productId))
+      .limit(1);
     if (!rows.length) return fail("not_found");
     const { site } = await assertSiteAccess(rows[0].siteId);
     await db.delete(products).where(eq(products.id, productId));
@@ -89,9 +109,15 @@ export async function deleteProductAction(productId: string): Promise<ActionResu
   }
 }
 
-export async function toggleProductStatusAction(productId: string): Promise<ActionResult> {
+export async function toggleProductStatusAction(
+  productId: string,
+): Promise<ActionResult> {
   try {
-    const rows = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+    const rows = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, productId))
+      .limit(1);
     if (!rows.length) return fail("not_found");
     const { site } = await assertSiteAccess(rows[0].siteId);
     await db
@@ -122,7 +148,9 @@ const postSchema = z.object({
   status: z.enum(["draft", "published"]).default("draft"),
 });
 
-export async function upsertPostAction(input: z.infer<typeof postSchema>): Promise<ActionResult> {
+export async function upsertPostAction(
+  input: z.infer<typeof postSchema>,
+): Promise<ActionResult> {
   const parsed = postSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
 
@@ -150,7 +178,9 @@ export async function upsertPostAction(input: z.infer<typeof postSchema>): Promi
       const existing = await db
         .select({ id: blogPosts.id, publishedAt: blogPosts.publishedAt })
         .from(blogPosts)
-        .where(and(eq(blogPosts.id, data.postId), eq(blogPosts.siteId, data.siteId)))
+        .where(
+          and(eq(blogPosts.id, data.postId), eq(blogPosts.siteId, data.siteId)),
+        )
         .limit(1);
       if (!existing.length) return fail("not_found");
       await db
@@ -158,7 +188,9 @@ export async function upsertPostAction(input: z.infer<typeof postSchema>): Promi
         .set({
           ...values,
           publishedAt:
-            data.status === "published" ? existing[0].publishedAt ?? new Date() : null,
+            data.status === "published"
+              ? (existing[0].publishedAt ?? new Date())
+              : null,
         })
         .where(eq(blogPosts.id, data.postId));
     } else {
@@ -174,7 +206,11 @@ export async function upsertPostAction(input: z.infer<typeof postSchema>): Promi
 
 export async function deletePostAction(postId: string): Promise<ActionResult> {
   try {
-    const rows = await db.select().from(blogPosts).where(eq(blogPosts.id, postId)).limit(1);
+    const rows = await db
+      .select()
+      .from(blogPosts)
+      .where(eq(blogPosts.id, postId))
+      .limit(1);
     if (!rows.length) return fail("not_found");
     const { site } = await assertSiteAccess(rows[0].siteId);
     await db.delete(blogPosts).where(eq(blogPosts.id, postId));
@@ -189,7 +225,7 @@ export async function deletePostAction(postId: string): Promise<ActionResult> {
 
 export async function updateSubmissionStatusAction(
   submissionId: string,
-  status: "new" | "read" | "archived"
+  status: "new" | "read" | "archived",
 ): Promise<ActionResult> {
   try {
     const rows = await db
@@ -220,7 +256,7 @@ const publicSubmissionSchema = z.object({
 });
 
 export async function submitPublicFormAction(
-  input: z.infer<typeof publicSubmissionSchema>
+  input: z.infer<typeof publicSubmissionSchema>,
 ): Promise<ActionResult> {
   const parsed = publicSubmissionSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
@@ -235,7 +271,8 @@ export async function submitPublicFormAction(
     .from(sites)
     .where(eq(sites.id, parsed.data.siteId))
     .limit(1);
-  if (!siteRows.length || siteRows[0].status !== "published") return fail("not_found");
+  if (!siteRows.length || siteRows[0].status !== "published")
+    return fail("not_found");
 
   if (parsed.data.formType === "quote" || parsed.data.formType === "booking") {
     const flag = await db
@@ -244,8 +281,8 @@ export async function submitPublicFormAction(
       .where(
         and(
           eq(featureFlags.siteId, parsed.data.siteId),
-          eq(featureFlags.feature, parsed.data.formType)
-        )
+          eq(featureFlags.feature, parsed.data.formType),
+        ),
       )
       .limit(1);
     if (flag.length && !flag[0].isEnabled) return fail("feature_disabled");

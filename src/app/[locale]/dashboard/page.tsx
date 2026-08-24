@@ -9,7 +9,11 @@ import { Badge } from "@/components/ui";
 import SignOutButton from "@/components/dashboard/SignOutButton";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 
-export default async function SitesPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function SitesPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale: rawLocale } = await params;
   const locale = normalizeLocale(rawLocale);
   const t = getMessages(locale);
@@ -28,22 +32,33 @@ export default async function SitesPage({ params }: { params: Promise<{ locale: 
         .from(pages)
         .where(eq(pages.siteId, site.id));
       const [unread] = await db
-        .select({ value: sql<number>`count(*) filter (where status = 'new')::int` })
+        .select({
+          value: sql<number>`count(*) filter (where status = 'new')::int`,
+        })
         .from(formSubmissions)
         .where(eq(formSubmissions.siteId, site.id));
-      return { siteId: site.id, pages: pageCount?.value ?? 0, unread: unread?.value ?? 0 };
-    })
+      return {
+        siteId: site.id,
+        pages: pageCount?.value ?? 0,
+        unread: unread?.value ?? 0,
+      };
+    }),
   );
 
   return (
     <div className="min-h-screen bg-zinc-50">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
-          <Link href={`/${locale}`} className="text-[15px] font-semibold tracking-tight">
+          <Link
+            href={`/${locale}`}
+            className="text-[15px] font-semibold tracking-tight"
+          >
             {t.common.appName}
           </Link>
           <div className="flex items-center gap-3">
-            <span className="hidden text-[13px] text-zinc-500 sm:inline">{user.email}</span>
+            <span className="hidden text-[13px] text-zinc-500 sm:inline">
+              {user.email}
+            </span>
             <SignOutButton />
           </div>
         </div>
@@ -55,7 +70,9 @@ export default async function SitesPage({ params }: { params: Promise<{ locale: 
             <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
               {t.dashboard.sitesTitle}
             </h1>
-            <p className="mt-1 text-sm text-zinc-500">{t.dashboard.sitesSubtitle}</p>
+            <p className="mt-1 text-sm text-zinc-500">
+              {t.dashboard.sitesSubtitle}
+            </p>
           </div>
           <Link
             href={`/${locale}/onboarding`}
@@ -95,8 +112,14 @@ export default async function SitesPage({ params }: { params: Promise<{ locale: 
                       <h2 className="truncate text-sm font-semibold tracking-tight text-zinc-900">
                         {site.name}
                       </h2>
-                      <Badge tone={site.status === "published" ? "success" : "neutral"}>
-                        {site.status === "published" ? t.common.published : t.common.draft}
+                      <Badge
+                        tone={
+                          site.status === "published" ? "success" : "neutral"
+                        }
+                      >
+                        {site.status === "published"
+                          ? t.common.published
+                          : t.common.draft}
                       </Badge>
                     </div>
                     <p className="mt-1 truncate font-mono text-[12px] text-zinc-500">
@@ -108,10 +131,13 @@ export default async function SitesPage({ params }: { params: Promise<{ locale: 
                       </span>
                       {(stat?.unread ?? 0) > 0 && (
                         <span className="font-medium text-zinc-900">
-                          {stat?.unread} {t.dashboard.statMessages.toLowerCase()}
+                          {stat?.unread}{" "}
+                          {t.dashboard.statMessages.toLowerCase()}
                         </span>
                       )}
-                      <span className="ml-auto uppercase tracking-wide text-zinc-400">{role}</span>
+                      <span className="ml-auto uppercase tracking-wide text-zinc-400">
+                        {role}
+                      </span>
                     </div>
                   </div>
                 </Link>

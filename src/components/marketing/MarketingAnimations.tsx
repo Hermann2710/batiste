@@ -3,7 +3,11 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useHeroEntrance, useScrollReveal, useStaggerReveal } from "@/lib/animations";
+import {
+  useHeroEntrance,
+  useScrollReveal,
+  useStaggerReveal,
+} from "@/lib/animations";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -24,7 +28,7 @@ export function AnimatedNav({ children }: { children: React.ReactNode }) {
     gsap.fromTo(
       outer,
       { y: -20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: "power3.out", delay: 0.05 }
+      { y: 0, opacity: 1, duration: 0.6, ease: "power3.out", delay: 0.05 },
     );
 
     // Scroll-driven transition: transparent → glass pill
@@ -33,12 +37,18 @@ export function AnimatedNav({ children }: { children: React.ReactNode }) {
       onUpdate(self) {
         const scrolled = self.scroll() > 60;
         gsap.to(pill, {
-          backgroundColor: scrolled ? "rgba(255,255,255,0.82)" : "rgba(255,255,255,0)",
-          borderColor: scrolled ? "rgba(228,228,231,0.7)" : "rgba(228,228,231,0)",
+          backgroundColor: scrolled
+            ? "rgba(255,255,255,0.82)"
+            : "rgba(255,255,255,0)",
+          borderColor: scrolled
+            ? "rgba(228,228,231,0.7)"
+            : "rgba(228,228,231,0)",
           boxShadow: scrolled
             ? "0 4px 24px -6px rgba(24,24,27,0.1), 0 0 0 1px rgba(228,228,231,0.5)"
             : "0 0 0 0 transparent",
-          backdropFilter: scrolled ? "blur(16px) saturate(1.6)" : "blur(0px) saturate(1)",
+          backdropFilter: scrolled
+            ? "blur(16px) saturate(1.6)"
+            : "blur(0px) saturate(1)",
           paddingTop: scrolled ? 10 : 16,
           paddingBottom: scrolled ? 10 : 16,
           duration: 0.35,

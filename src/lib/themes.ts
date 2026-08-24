@@ -93,7 +93,10 @@ export const DEFAULT_THEMES: ThemeConfig[] = [
       border: "#2A2740",
       accent: "#FBBF24",
     },
-    fonts: { heading: "'Space Grotesk', sans-serif", body: "'DM Sans', sans-serif" },
+    fonts: {
+      heading: "'Space Grotesk', sans-serif",
+      body: "'DM Sans', sans-serif",
+    },
     borderRadius: "0.875rem",
     swatch: ["#A78BFA", "#1A1826", "#0E0D16"],
   },
@@ -104,7 +107,11 @@ export function getThemeConfig(id: string): ThemeConfig {
 }
 
 /** Turns a stored theme row into inline CSS custom properties. */
-export function themeStyle(theme: { colors: unknown; fonts: unknown; borderRadius: string | null }) {
+export function themeStyle(theme: {
+  colors: unknown;
+  fonts: unknown;
+  borderRadius: string | null;
+}) {
   const colors = theme.colors as ThemeColors;
   const fonts = theme.fonts as ThemeFonts;
   return {

@@ -14,7 +14,7 @@ export interface AnalyticsSummary {
 
 export async function getAnalyticsSummary(
   siteId: string,
-  days = 30
+  days = 30,
 ): Promise<AnalyticsSummary> {
   await assertSiteAccess(siteId);
 
@@ -27,12 +27,22 @@ export async function getAnalyticsSummary(
       uniqueVisitors: sql<number>`count(distinct ${analyticsEvents.visitorId})::int`,
     })
     .from(analyticsEvents)
-    .where(and(eq(analyticsEvents.siteId, siteId), gte(analyticsEvents.createdAt, since)));
+    .where(
+      and(
+        eq(analyticsEvents.siteId, siteId),
+        gte(analyticsEvents.createdAt, since),
+      ),
+    );
 
   const topPages = await db
     .select({ path: analyticsEvents.path, views: sql<number>`count(*)::int` })
     .from(analyticsEvents)
-    .where(and(eq(analyticsEvents.siteId, siteId), gte(analyticsEvents.createdAt, since)))
+    .where(
+      and(
+        eq(analyticsEvents.siteId, siteId),
+        gte(analyticsEvents.createdAt, since),
+      ),
+    )
     .groupBy(analyticsEvents.path)
     .orderBy(sql`count(*) desc`)
     .limit(10);
@@ -43,7 +53,12 @@ export async function getAnalyticsSummary(
       views: sql<number>`count(*)::int`,
     })
     .from(analyticsEvents)
-    .where(and(eq(analyticsEvents.siteId, siteId), gte(analyticsEvents.createdAt, since)))
+    .where(
+      and(
+        eq(analyticsEvents.siteId, siteId),
+        gte(analyticsEvents.createdAt, since),
+      ),
+    )
     .groupBy(sql`to_char(${analyticsEvents.createdAt}, 'YYYY-MM-DD')`)
     .orderBy(sql`to_char(${analyticsEvents.createdAt}, 'YYYY-MM-DD')`);
 
@@ -56,7 +71,11 @@ export async function getAnalyticsSummary(
 }
 
 /** Appelé depuis le site public pour tracker une visite. */
-export async function trackPageView(subdomain: string, path: string, visitorId: string) {
+export async function trackPageView(
+  subdomain: string,
+  path: string,
+  visitorId: string,
+) {
   const [site] = await db
     .select({ id: sites.id })
     .from(sites)

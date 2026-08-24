@@ -9,7 +9,7 @@ export function publicPath(prefix: string, path = "") {
 export function publicLanguagePrefix(
   root: string,
   language: string,
-  defaultLanguage: string
+  defaultLanguage: string,
 ) {
   return language === defaultLanguage ? root : publicPath(root, language);
 }

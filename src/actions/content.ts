@@ -21,7 +21,11 @@ function revalidateAll(subdomain: string) {
 }
 
 async function pageContext(pageId: string) {
-  const rows = await db.select().from(pages).where(eq(pages.id, pageId)).limit(1);
+  const rows = await db
+    .select()
+    .from(pages)
+    .where(eq(pages.id, pageId))
+    .limit(1);
   const page = rows[0];
   if (!page) throw new Error("NOT_FOUND");
   const { site } = await assertSiteAccess(page.siteId);
@@ -38,7 +42,7 @@ const createPageSchema = z.object({
 });
 
 export async function createPageAction(
-  input: z.infer<typeof createPageSchema>
+  input: z.infer<typeof createPageSchema>,
 ): Promise<ActionResult<{ pageId: string }>> {
   const parsed = createPageSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
@@ -54,8 +58,8 @@ export async function createPageAction(
         and(
           eq(pages.siteId, parsed.data.siteId),
           eq(pages.slug, slug),
-          eq(pages.language, parsed.data.language)
-        )
+          eq(pages.language, parsed.data.language),
+        ),
       )
       .limit(1);
     if (duplicate.length) return fail("slug_taken");
@@ -95,7 +99,7 @@ const updatePageSchema = z.object({
 });
 
 export async function updatePageAction(
-  input: z.infer<typeof updatePageSchema>
+  input: z.infer<typeof updatePageSchema>,
 ): Promise<ActionResult> {
   const parsed = updatePageSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
@@ -108,11 +112,17 @@ export async function updatePageAction(
       .update(pages)
       .set({
         title: data.title ?? page.title,
-        slug: page.isHomepage ? "" : data.slug !== undefined ? slugify(data.slug, 120) : page.slug,
+        slug: page.isHomepage
+          ? ""
+          : data.slug !== undefined
+            ? slugify(data.slug, 120)
+            : page.slug,
         status: data.status ?? page.status,
         seoTitle: data.seoTitle !== undefined ? data.seoTitle : page.seoTitle,
         seoDescription:
-          data.seoDescription !== undefined ? data.seoDescription : page.seoDescription,
+          data.seoDescription !== undefined
+            ? data.seoDescription
+            : page.seoDescription,
         updatedAt: new Date(),
       })
       .where(eq(pages.id, page.id));
@@ -144,7 +154,7 @@ const addBlockSchema = z.object({
 });
 
 export async function addBlockAction(
-  input: z.infer<typeof addBlockSchema>
+  input: z.infer<typeof addBlockSchema>,
 ): Promise<ActionResult<{ blockId: string }>> {
   const parsed = addBlockSchema.safeParse(input);
   if (!parsed.success) return fail("validation");
@@ -178,7 +188,11 @@ export async function addBlockAction(
 }
 
 async function blockContext(blockId: string) {
-  const rows = await db.select().from(blocks).where(eq(blocks.id, blockId)).limit(1);
+  const rows = await db
+    .select()
+    .from(blocks)
+    .where(eq(blocks.id, blockId))
+    .limit(1);
   const block = rows[0];
   if (!block) throw new Error("NOT_FOUND");
   const { site } = await pageContext(block.pageId);
@@ -187,7 +201,7 @@ async function blockContext(blockId: string) {
 
 export async function updateBlockContentAction(
   blockId: string,
-  content: Record<string, unknown>
+  content: Record<string, unknown>,
 ): Promise<ActionResult> {
   try {
     const { site } = await blockContext(blockId);
@@ -202,7 +216,9 @@ export async function updateBlockContentAction(
   }
 }
 
-export async function toggleBlockVisibilityAction(blockId: string): Promise<ActionResult> {
+export async function toggleBlockVisibilityAction(
+  blockId: string,
+): Promise<ActionResult> {
   try {
     const { block, site } = await blockContext(blockId);
     await db
@@ -216,7 +232,9 @@ export async function toggleBlockVisibilityAction(blockId: string): Promise<Acti
   }
 }
 
-export async function duplicateBlockAction(blockId: string): Promise<ActionResult> {
+export async function duplicateBlockAction(
+  blockId: string,
+): Promise<ActionResult> {
   try {
     const { block, site } = await blockContext(blockId);
     const [maxPos] = await db
@@ -239,7 +257,9 @@ export async function duplicateBlockAction(blockId: string): Promise<ActionResul
   }
 }
 
-export async function deleteBlockAction(blockId: string): Promise<ActionResult> {
+export async function deleteBlockAction(
+  blockId: string,
+): Promise<ActionResult> {
   try {
     const { site } = await blockContext(blockId);
     await db.delete(blocks).where(eq(blocks.id, blockId));
@@ -252,7 +272,7 @@ export async function deleteBlockAction(blockId: string): Promise<ActionResult> 
 
 export async function reorderBlocksAction(
   pageId: string,
-  orderedIds: string[]
+  orderedIds: string[],
 ): Promise<ActionResult> {
   try {
     const { page, site } = await pageContext(pageId);

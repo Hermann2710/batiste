@@ -3,7 +3,11 @@ import AuthForm from "@/components/auth/AuthForm";
 import AnimatedAuthLayout from "@/components/marketing/AnimatedAuthLayout";
 import { getMessages } from "@/i18n/messages";
 
-export default async function RegisterPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function RegisterPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const t = getMessages(locale);
 
@@ -12,14 +16,22 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
       left={
         <div className="mx-auto w-full max-w-sm">
           <div data-auth-anim>
-            <Link href={`/${locale}`} className="text-[15px] font-semibold tracking-tight text-zinc-900">
+            <Link
+              href={`/${locale}`}
+              className="text-[15px] font-semibold tracking-tight text-zinc-900"
+            >
               {t.common.appName}
             </Link>
           </div>
-          <h1 data-auth-anim className="mt-10 text-2xl font-semibold tracking-tight text-zinc-900">
+          <h1
+            data-auth-anim
+            className="mt-10 text-2xl font-semibold tracking-tight text-zinc-900"
+          >
             {t.auth.registerTitle}
           </h1>
-          <p data-auth-anim className="mt-1 text-sm text-zinc-500">{t.auth.registerSubtitle}</p>
+          <p data-auth-anim className="mt-1 text-sm text-zinc-500">
+            {t.auth.registerSubtitle}
+          </p>
 
           <div data-auth-anim className="mt-8">
             <AuthForm mode="signup" />
@@ -27,7 +39,10 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
 
           <p data-auth-anim className="mt-6 text-sm text-zinc-500">
             {t.auth.hasAccount}{" "}
-            <Link href={`/${locale}/login`} className="font-medium text-zinc-900 underline underline-offset-4">
+            <Link
+              href={`/${locale}/login`}
+              className="font-medium text-zinc-900 underline underline-offset-4"
+            >
               {t.auth.signIn}
             </Link>
           </p>
@@ -53,7 +68,9 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
               </li>
             ))}
           </ol>
-          <span className="text-xs text-zinc-500">{t.marketing.finalCtaDesc}</span>
+          <span className="text-xs text-zinc-500">
+            {t.marketing.finalCtaDesc}
+          </span>
         </div>
       }
     />

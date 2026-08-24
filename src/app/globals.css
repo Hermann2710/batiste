@@ -15,11 +15,18 @@ body {
   color: #18181b;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-display);
 }
 
-button, a, input, textarea, select, summary {
+button,
+a,
+input,
+textarea,
+select,
+summary {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -116,11 +123,14 @@ button, a, input, textarea, select, summary {
 
 /* Smooth micro-interactions */
 .site-card {
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .site-button {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 .site-button:active {
   transform: scale(0.97);
@@ -128,9 +138,10 @@ button, a, input, textarea, select, summary {
 
 /* Dashboard card hover lift */
 .dash-card-hover {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-              border-color 0.25s ease;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease;
 }
 .dash-card-hover:hover {
   transform: translateY(-3px);
@@ -138,13 +149,16 @@ button, a, input, textarea, select, summary {
 }
 
 .dashboard-grid {
-  background-image: linear-gradient(to right, rgba(24, 24, 27, 0.035) 1px, transparent 1px),
+  background-image:
+    linear-gradient(to right, rgba(24, 24, 27, 0.035) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(24, 24, 27, 0.035) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
