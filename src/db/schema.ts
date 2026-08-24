@@ -9,6 +9,7 @@ import {
   jsonb,
   index,
   uniqueIndex,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
 // ============================================================================
@@ -18,16 +19,43 @@ import {
 // 1. USERS - Les comptes qui se connectent à Batiste
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
+  // Champs requis par l'adaptateur Auth.js.
+  name: varchar("name", { length: 200 }),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  emailVerified: timestamp("email_verified"),
+  image: text("image"),
+  // Profil métier Batiste conservé en complément du modèle Auth.js.
   passwordHash: varchar("password_hash", { length: 255 }),
-  googleId: varchar("google_id", { length: 255 }).unique(),
   firstName: varchar("first_name", { length: 100 }),
   lastName: varchar("last_name", { length: 100 }),
   avatarUrl: text("avatar_url"),
-  emailVerified: boolean("email_verified").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Modèle officiel Auth.js, avec des noms SQL explicites et cohérents avec le reste du projet.
+export const accounts = pgTable(
+  "accounts",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    type: varchar("type", { length: 50 }).notNull(),
+    provider: varchar("provider", { length: 100 }).notNull(),
+    providerAccountId: varchar("provider_account_id", { length: 255 }).notNull(),
+    refresh_token: text("refresh_token"), access_token: text("access_token"), expires_at: integer("expires_at"),
+    token_type: varchar("token_type", { length: 50 }), scope: text("scope"), id_token: text("id_token"), session_state: text("session_state"),
+  },
+  (table) => [primaryKey({ columns: [table.provider, table.providerAccountId] }), index("accounts_user_idx").on(table.userId)]
+);
+
+export const sessions = pgTable("sessions", {
+  sessionToken: varchar("session_token", { length: 255 }).primaryKey(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expires: timestamp("expires").notNull(),
+}, (table) => [index("sessions_user_idx").on(table.userId)]);
+
+export const verificationTokens = pgTable("verification_tokens", {
+  identifier: varchar("identifier", { length: 255 }).notNull(), token: varchar("token", { length: 255 }).notNull(), expires: timestamp("expires").notNull(),
+}, (table) => [primaryKey({ columns: [table.identifier, table.token] })]);
 
 // 2. THEMES - Liste des thèmes disponibles
 export const themes = pgTable("themes", {
@@ -267,6 +295,8 @@ export const blogPosts = pgTable(
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Account = typeof accounts.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
 export type Theme = typeof themes.$inferSelect;
 export type NewTheme = typeof themes.$inferInsert;
 export type Site = typeof sites.$inferSelect;

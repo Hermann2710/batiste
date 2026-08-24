@@ -100,6 +100,7 @@ export async function signUpAction(
     .values({
       email: parsed.data.email,
       passwordHash,
+      name: [parsed.data.firstName, parsed.data.lastName].filter(Boolean).join(" ") || null,
       firstName: parsed.data.firstName ?? null,
       lastName: parsed.data.lastName ?? null,
     })
@@ -132,6 +133,8 @@ export async function updateProfileAction(formData: FormData): Promise<ProfileSt
       firstName: parsed.data.firstName || null,
       lastName: parsed.data.lastName || null,
       avatarUrl: parsed.data.avatarUrl || null,
+      name: [parsed.data.firstName, parsed.data.lastName].filter(Boolean).join(" ") || null,
+      image: parsed.data.avatarUrl || null,
       updatedAt: new Date(),
     }).where(eq(users.id, session.user.id));
     return { ok: true };

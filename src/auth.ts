@@ -4,8 +4,9 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { accounts, sessions, users, verificationTokens } from "@/db/schema";
 import authConfig from "@/auth.config";
 
 const credentialsSchema = z.object({
@@ -15,6 +16,7 @@ const credentialsSchema = z.object({
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
+  adapter: DrizzleAdapter(db, { usersTable: users, accountsTable: accounts, sessionsTable: sessions, verificationTokensTable: verificationTokens }),
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -34,16 +36,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider !== "google") return true;
-      if (!user.email || !profile?.sub) return false;
-      const email = user.email.toLowerCase();
-      const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-      if (existing) {
-        if (!existing.googleId) {
-          await db.update(users).set({ googleId: profile.sub, avatarUrl: user.image ?? existing.avatarUrl, emailVerified: true }).where(eq(users.id, existing.id));
-        }
-        return true;
-      }
-      await db.insert(users).values({ email, googleId: profile.sub, firstName: profile.given_name ?? null, lastName: profile.family_name ?? null, avatarUrl: user.image ?? null, emailVerified: true });
+      if (!user.id || !user.email || !profile?.sub) return false;
+      await db.update(users).set({
+        name: user.name, image: user.image, firstName: profile.given_name ?? null,
+        lastName: profile.family_name ?? null, avatarUrl: user.image ?? null, emailVerified: new Date(), updatedAt: new Date(),
+      }).where(eq(users.id, user.id));
       return true;
     },
     async jwt({ token, user }) {
