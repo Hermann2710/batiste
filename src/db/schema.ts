@@ -8,6 +8,7 @@ import {
   boolean,
   jsonb,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ============================================================================
@@ -89,6 +90,7 @@ export const siteMembers = pgTable(
     invitedAt: timestamp("invited_at").defaultNow().notNull(),
   },
   (table) => [
+    uniqueIndex("site_members_site_user_unique").on(table.siteId, table.userId),
     index("site_members_site_idx").on(table.siteId),
     index("site_members_user_idx").on(table.userId),
   ]
@@ -115,7 +117,7 @@ export const pages = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    index("pages_site_slug_idx").on(table.siteId, table.slug, table.language),
+    uniqueIndex("pages_site_slug_language_unique").on(table.siteId, table.slug, table.language),
     index("pages_site_idx").on(table.siteId),
   ]
 );
@@ -137,7 +139,7 @@ export const blocks = pgTable(
   },
   (table) => [
     index("blocks_page_idx").on(table.pageId),
-    index("blocks_page_position_idx").on(table.pageId, table.position),
+    uniqueIndex("blocks_page_position_unique").on(table.pageId, table.position),
   ]
 );
 
@@ -198,6 +200,8 @@ export const media = pgTable(
       .notNull()
       .references(() => sites.id, { onDelete: "cascade" }),
     url: text("url").notNull(),
+    provider: varchar("provider", { length: 30 }).notNull().default("cloudinary"),
+    providerAssetId: varchar("provider_asset_id", { length: 500 }),
     filename: varchar("filename", { length: 255 }).notNull(),
     mimeType: varchar("mime_type", { length: 100 }).notNull(),
     size: integer("size").notNull(), // en bytes
@@ -225,7 +229,7 @@ export const featureFlags = pgTable(
   },
   (table) => [
     index("feature_flags_site_idx").on(table.siteId),
-    index("feature_flags_site_feature_idx").on(table.siteId, table.feature),
+    uniqueIndex("feature_flags_site_feature_unique").on(table.siteId, table.feature),
   ]
 );
 
@@ -256,7 +260,7 @@ export const blogPosts = pgTable(
   (table) => [
     index("blog_posts_site_idx").on(table.siteId),
     index("blog_posts_site_status_idx").on(table.siteId, table.status),
-    index("blog_posts_slug_idx").on(table.siteId, table.slug, table.language),
+    uniqueIndex("blog_posts_site_slug_language_unique").on(table.siteId, table.slug, table.language),
   ]
 );
 

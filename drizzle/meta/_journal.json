@@ -8,6 +8,13 @@
       "when": 1787427890946,
       "tag": "0000_dashing_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787590000000,
+      "tag": "0001_integrity_and_cloudinary_media",
+      "breakpoints": true
     }
   ]
 }

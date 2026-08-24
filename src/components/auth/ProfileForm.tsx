@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { updateProfileAction } from "@/actions/auth";
-import { Button, Card, CardBody, Field, Input, PageHeader } from "@/components/ui";
+import { Button, Card, CardBody, Field, ImageUpload, Input, PageHeader } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 
 export default function ProfileForm() {
@@ -47,7 +47,7 @@ function ProfileEditor({ email, initial, t }: { email: string; initial: { firstN
             <Field label={t.auth.firstName}><Input value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></Field>
             <Field label={t.auth.lastName}><Input value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} /></Field>
           </div>
-          <Field label={t.profile.avatarUrl} hint={t.profile.avatarHint}><Input type="url" value={form.avatarUrl} onChange={(event) => setForm({ ...form, avatarUrl: event.target.value })} placeholder="https://..." /></Field>
+          <Field label={t.profile.avatarUrl} hint={t.profile.avatarHint}><ImageUpload value={form.avatarUrl} onChange={(avatarUrl) => setForm({ ...form, avatarUrl })} /></Field>
         </CardBody>
       </Card>
     </div>

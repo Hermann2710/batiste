@@ -116,7 +116,7 @@ export default function BlogManager({
         <BlogPostList posts={posts} locale={locale} t={t} onEdit={openEdit} />
       )}
 
-      <BlogPostEditor open={open} draft={draft} languages={languages} pending={pending} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
+      <BlogPostEditor open={open} draft={draft} languages={languages} pending={pending} siteId={siteId} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
     </div>
   );
 }

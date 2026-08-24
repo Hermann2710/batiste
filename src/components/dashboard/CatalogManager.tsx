@@ -112,7 +112,7 @@ export default function CatalogManager({
         <ProductTable products={products} locale={locale} t={t} onEdit={openEdit} />
       )}
 
-      <ProductEditor open={open} draft={draft} pending={pending} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
+      <ProductEditor open={open} draft={draft} pending={pending} siteId={siteId} t={t} onClose={() => setOpen(false)} onChange={setDraft} onSave={save} />
     </div>
   );
 }
