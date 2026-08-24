@@ -76,6 +76,14 @@ export default auth((request) => {
     return NextResponse.redirect(login);
   }
 
+  const isAuthRoute = segments[1] === "login" || segments[1] === "register";
+  if (isAuthRoute && request.auth?.user) {
+    const dashboard = request.nextUrl.clone();
+    dashboard.pathname = `/${segments[0]}/dashboard`;
+    dashboard.search = "";
+    return NextResponse.redirect(dashboard);
+  }
+
   const response = NextResponse.next();
   response.headers.set("x-batiste-locale", segments[0]);
   return response;
