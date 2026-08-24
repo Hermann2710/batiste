@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, BookOpen, FileText, Globe2, Inbox, LayoutDashboard, Palette, Settings } from "lucide-react";
+import { ArrowUpRight, BarChart2, BookOpen, FileText, Globe2, Inbox, LayoutDashboard, MessageSquareQuote, Palette, Settings } from "lucide-react";
 import SiteSidebar, { type SiteNavItem } from "./SiteSidebar";
 
 export interface ShellSite {
@@ -39,6 +39,8 @@ export default function SiteShell({
     { href: `${base}/pages`, label: t.nav.pages, icon: FileText, show: true },
     { href: `${base}/catalog`, label: t.nav.catalog, icon: Palette, show: features.catalog },
     { href: `${base}/blog`, label: t.nav.blog, icon: BookOpen, show: features.blog },
+    { href: `${base}/testimonials`, label: t.nav.testimonials, icon: MessageSquareQuote, show: true },
+    { href: `${base}/analytics`, label: t.nav.analytics, icon: BarChart2, show: true },
     { href: `${base}/inbox`, label: t.nav.inbox, icon: Inbox, show: true, badge: unreadCount },
     { href: `${base}/settings`, label: t.nav.settings, icon: Settings, show: true },
   ].filter((item) => item.show);

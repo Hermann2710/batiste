@@ -40,7 +40,7 @@ key={block} className={`rounded-lg border px-3 py-2 text-[11px] transition-all $
 ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 text-zinc-500" }`}
 > {block} </div>
 ))} </div> <div className="col-span-2 bg-white p-4">
-<div className="h-24 rounded-lg bg-gradient-to-br from-zinc-900 to-zinc-700" /> <div className="mt-3 h-2.5 w-2/3 rounded bg-zinc-200" /> <div className="mt-2 h-2.5 w-1/2 rounded bg-zinc-100" />
+<div className="h-24 rounded-lg bg-linear-to-br from-zinc-900 to-zinc-700" /> <div className="mt-3 h-2.5 w-2/3 rounded bg-zinc-200" /> <div className="mt-2 h-2.5 w-1/2 rounded bg-zinc-100" />
 <div className="mt-4 grid grid-cols-3 gap-2"> {[0, 1, 2].map((i) => ( <div key={i} className="h-14 rounded-lg bg-zinc-100" />
 ))} </div> </div>
 </div> </div> </div>

@@ -261,6 +261,46 @@ export const featureFlags = pgTable(
   ]
 );
 
+// 11. ANALYTICS EVENTS - Visites légères par site
+export const analyticsEvents = pgTable(
+  "analytics_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    siteId: uuid("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    path: varchar("path", { length: 500 }).notNull(),
+    visitorId: varchar("visitor_id", { length: 100 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("analytics_events_site_created_idx").on(table.siteId, table.createdAt),
+    index("analytics_events_site_visitor_idx").on(table.siteId, table.visitorId),
+  ]
+);
+
+// 12. TESTIMONIALS - Avis clients avec modération
+export const testimonials = pgTable(
+  "testimonials",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    siteId: uuid("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    authorName: varchar("author_name", { length: 120 }).notNull(),
+    role: varchar("role", { length: 120 }),
+    quote: text("quote").notNull(),
+    rating: integer("rating").default(5).notNull(),
+    status: varchar("status", { length: 20 }).default("pending").notNull(), // pending, approved, rejected
+    source: varchar("source", { length: 20 }).default("dashboard").notNull(), // dashboard, public
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("testimonials_site_status_idx").on(table.siteId, table.status),
+  ]
+);
+
 // Blog posts (module Blog)
 export const blogPosts = pgTable(
   "blog_posts",
@@ -316,3 +356,7 @@ export type NewMedia = typeof media.$inferInsert;
 export type FeatureFlag = typeof featureFlags.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type NewBlogPost = typeof blogPosts.$inferInsert;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type NewAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+export type Testimonial = typeof testimonials.$inferSelect;
+export type NewTestimonial = typeof testimonials.$inferInsert;
